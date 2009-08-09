@@ -1,0 +1,71 @@
+/* @override http://thirdcog.eu/pwcblocks/pwcblocks.css */
+
+body {
+	background-color: #d1d4dd;
+}
+div.container {
+	background-color: #fff;
+	padding: 1.1em;
+	padding-top: 0.1em;
+	margin: 1.1em;
+	margin-top: 0;
+	-webkit-border-radius: 1em;
+	-moz-border-radius: 1em;
+	border: 2px solid #989eaf;
+}
+
+h2 a, h3 a, h4 a {
+	text-decoration: none;
+	color: #50509f;
+}
+a {
+	text-decoration: none;
+	color: #50509f;
+}
+
+.notetoself {
+	background-color: #f5ecbd;
+	border-style: dashed;
+	border-color: #ffc28e;
+	padding: 0.4em;
+	color: #845832;
+}
+
+blockquote {
+	font-style: italic;
+}
+
+.codeblock {
+	margin-left: 2em;
+	border: 2px solid #ccd0dd;
+	padding: 10px;
+	margin: 1em;
+
+}
+a.codedownload {
+	float: right;
+	background: #ccd0de url(zipicon.png) no-repeat 10px 10px;
+	font: 13px "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #000;
+	text-decoration: underline;
+	right: -10px;
+	top: -10px;
+	position: relative;
+	padding-right: 10px;
+	padding-top: 10px;
+	padding-left: 28px;
+	padding-bottom: 10px;
+	border-left: 2px solid #ccd0dd;
+	border-bottom: 2px solid #ccd0dd;;
+	-webkit-border-bottom-left-radius: 10px;
+	-moz-border-radius-bottomleft: 10px;
+}
+
+.codedownload img {
+	width: 16px;
+}
+
+pre {
+	margin-top: 0;
+	margin-bottom: 0;
+}

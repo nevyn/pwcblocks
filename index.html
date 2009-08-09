@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Programming with C Blocks on Apple Devices</title>
+	<style type="text/css" media="screen">
+		@import url("pwcblocks.css");
+	</style>
+</head>
+<body><div class="container">
+
+
+	<h1 style="margin-bottom:0">Programming with C Blocks</h1>
+	<b>&nbsp;&nbsp;On Apple Devices</b><br><br>
+	<em>By <a href="mailto:joachimb@gmail.com">Joachim Bengtsson</a></em><br>
+	<em>Edited 2009 08 02</em>
+
+
+
+
+
+	<h2>ToC</h2>
+		<ol class="toc">
+			<li><a href="#whatareblocks">What are Blocks?</a></li>
+			<li><a href="#gettingstarted">Getting Started</a>
+				<ol>
+					<li><a href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></li>
+					<li><a href="#leoiphone">On Mac OS X 10.5 Leopard or for iPhone</a></li>
+				</ol>
+			</li>
+			<li><a href="#cblocks">Blocks in C
+				<ol>
+					<li><a href="#cblocks-usage">Syntax and Usage</a></li>
+					<li><a href="#cblocks-memory">Memory Management</a></li>
+				</ol>
+			</li>
+			<li><a href="#objcblocks">Blocks in Objective-C
+				<ol>
+					<li><a href="#objcblocks-usage">Syntax and Usage</a></li>
+					<li><a href="#objcblocks-memory">Memory Management</a></li>
+				</ol>
+			</li>
+			<li><a href="#cppblocks">Blocks in C++</a></li>
+			<li><a href="#references">References and Additional Sources</a></li>
+			<li><a href="#versions">Version History</a></li>
+		</ol>
+
+
+
+
+
+	<h2><a name="whatareblocks" href="#whatareblocks">What are Blocks?</a></h2>
+		<p>Blocks are like functions, but written inline with the rest of your code, <em>inside</em> other functions. They are also called <a href="http://en.wikipedia.org/wiki/Closure_(computer_science)" title="Closure (computer science) - Wikipedia, the free encyclopedia">closures</a>, because they <em>close</em> around variables in your scope. (They can also be called lambdas). Let me demonstrate what this means:</p>
+		<div class="codeblock">
+			<a class="codedownload" href="counter.zip">counter.zip</a>
+			<pre><code>#include &lt;stdio.h&gt;
+#include &lt;Block.h&gt;
+typedef int (^IntBlock)();
+
+IntBlock counter(int start, int increment) {
+	__block int i = start;
+	
+	return Block_copy( ^ {
+		int ret = i;
+		i += increment;
+		return ret;
+	});
+	
+}
+
+int main() {
+	IntBlock mycounter = counter(5, 2);
+	printf("First call: %d\n", mycounter());
+	printf("Second call: %d\n", mycounter());
+	printf("Third call: %d\n", mycounter());
+	
+	Block_release(mycounter);
+	
+	return 0;
+}
+/* Output:
+	First call: 5
+	Second call: 7
+	Third call: 9
+*/
+			</code></pre>
+		</div>
+		
+		<p><code>counter</code> is an ordinary C function that returns one of these fabled <em>blocks</em>. When you have a reference to one, you can <em>call</em> it, just as if it was a function pointer. The difference is that the block can use the variables in <code>counter</code> <em>even after the call to that function has returned!</em> The variables <code>i</code> and <code>increment</code> have become a part of the state of the block <code>mycounter</code>. I will go into more detail of how each part of this example works in chapter 3.</p>
+		
+		<p><b>What are blocks useful for?</b> In Ruby, they are used in place of many control structures. The standard <code>for</code> loop is replaced by an ordinary function taking a block:</p>
+		<div class="codeblock">
+			<pre><code>
+[1, 2, 3, 4].each do |i|
+	puts i
+end
+# outputs the numbers 1, 2, 3, 4 on a line each
+</code></pre></div>
+
+		<p><code>each</code> is an ordinary function that takes a block: the block is the code between the 'do' and the 'end'. This is much more powerful than one might think, because with the ability to write your own control structures, you no longer need to depend on the evolution of the language to make your code terse and readable. Functional programming has many such useful control structures, such as the <a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)" title="Map (higher-order function) - Wikipedia, the free encyclopedia"><code>map</code></a> and <a href="http://en.wikipedia.org/wiki/Reduce_(higher-order_function)" title="Fold (higher-order function) - Wikipedia, the free encyclopedia"><code>reduce</code></a> functions; the first maps each value in a list to another value, while the second reduces a list of values to a single value (e g the sum of integers in the list). This is an entire topic in itself, and I encourage to learn more about functional programming on Wikipedia as I won't be covering that anymore here.</p>
+		
+		<p><b>What are blocks useful for?</b> In Erlang, they are used as a concurrency primitive together with the 'light-weight process', instead of the thread. This simple example looks through an array looking for a match, but each element is tested in its own separate process; each element being tested at the same time.</p>
+		<div class="codeblock">
+			<pre><code>some_function() ->
+  lists:for_each([1, 2, 3, 4], fun(element) -&gt; % [1]
+    spawn(fun -&gt; % [2]
+      if
+        element &gt; 1 andalso element &lt; 4 -&gt; % [3]
+          io:format("Found a match: ~p!~n", [element]); % [4]
+        true -&gt; true
+      end
+    end
+  end),
+  io:format("This line appears after the above statement, "
+            "but still executes before the code in it."). % [5]
+	
+% Outputs:
+% This line appears after the above statement, but still executes before the code in it.
+% Found a match: 3!
+% Found a match: 2!
+% OR with the lines swapped in any order, depending on scheduling
+</code></pre></div>
+	<p>Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered [1], we define an array with four numbers as elements, and calls the function <code>lists:for_each</code> with that list as a first argument, and a block taking one argument as the second argument (just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above). The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first block does is it <code>spawn</code>s a new Erlang process (line [2]), again taking a block as an argument to do the actual test, but now THIS block (line [2] still) is executing concurrently, and thus the test on line [3] is done concurrently for all elements in the array.</p>
+
+
+
+
+
+	<h2><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
+		<h3><a name="snowleo" href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></h3>
+			<ol>
+				<li>You're done! Block support is an integral part of Snow Leopard and there's nothing you need to do to use them. Even the standard library for blocks is included in libSystem, so you always automatically link with it.</li>
+			</ol>
+			<p class="notetoself">
+				TODO Okay that's true for Cocoa apps, but what about plain C apps? Non-Xcode projects?
+			</p>
+
+		<h3><a name="leoiphone" href="#leoiphone">On Mac OS X 10.5 Leopard or for iPhone</a></h3>
+			<p>If you want to use blocks in applications targetting Mac OS 10.5 or the iPhone, and/or you're running 10.5, you need to use the third-party GCC fork <a href="http://code.google.com/p/plblocks/" title="plblocks - Project Hosting on Google Code">Plausible Blocks</a>. <a href="http://code.google.com/p/plblocks/" title="plblocks - Project Hosting on Google Code">From their site</a>:
+				<blockquote>
+					<p>Plausible Blocks (PLBlocks) provides a drop-in runtime and toolchain for using blocks in iPhone 2.2+ and Mac OS X 10.5 applications. Both the runtime and compiler patches are direct backports from Apple's Snow Leopard source releases.</p>
+
+					<p>PLBlocks is provided by <a href="http://www.plausiblelabs.com/" title="Welcome to Plausible Labs">Plausible Labs</a>.</p>
+				</blockquote>
+			<ol>
+				<li>Download the latest plblocks disk image for your OS from the <a href="http://code.google.com/p/plblocks/downloads/list" title="Downloads - plblocks - Project Hosting on Google Code">Google Code page</a>.</li>
+				<li>Mount the disk image and run the installer. When done, keep the disk image mounted — you'll need it later.</li>
+				<li>Restart Xcode if it was running, and open the project in which you want to use blocks.</li>
+				<li>Open either the project-wide settings, or in the target settings (cmd-opt-E) for the specific target you want to use blocks in</li>
+				<li>Search for "Compiler"</li>
+				<li>From the drop-down for the setting "C/C++ Compiler Version", choose "GCC 4.2 (Plausible Blocks)" as shown in this image:<br />
+					<img src="http://plblocks.googlecode.com/svn/wiki/images/plblocks-select-compiler.png" />
+				</li>
+				<li>On the disk image with the plblocks installer, you'll find a folder called "PLBlocks Runtime". Save this to somewhere on your disk.</li>
+				<li>Now, for the target that will use blocks, you will need to link to the blocks runtime.
+					<ul>
+						<li>For an iPhone app, just drag the iPhone framework from the "Runtime" folder into your project and choose to link with your target.</li>
+						<li>For a Mac OS X 10.5 app, drag the Mac framework into your project and link with your target, and add an embed framework build phase. If you are unfamiliar with how to do this, <a href="http://overooped.com/post/42240519/properly-bundling-frameworks-in-your-application" title="Overooped — Properly bundling .frameworks in your application package">read my guide on framework embedding</a> (Note: You might only need to follow steps 1 through 3).</li>
+					</ul>
+				</li>
+			</ol>
+		</p>
+
+
+<h2><a name="objcblocks" href="#objcblocks">Blocks in C</a></h2>
+	<h3><a name="objcblocks-usage" href="#objcblocks-usage">Syntax and Usage</a></h3>
+		<p>
+			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to functions, except <code>*</code> is substituted for <code>^</code>. For example, this is a function pointer to a function taking an int and returning a float:
+		</p>
+		
+		<div class="codeblock"><code>float (*myfuncptr)(int);</code></div>
+		
+		<p>and this is a block pointer to a block taking an int and returning a float:</p>
+		
+		<div class="codeblock"><code>float (^myblockptr)(int);</code></div>
+	
+		<p>As with function pointers, you'll likely want to typedef those types, as it can get relatively hairy otherwise. For example, a pointer to a block returning a block taking a block would be something like <code>void(^)(void) (^myblockptr)(void(^)())</code>, which is nigh impossible to read (and doesn't even compile, I'm not sure how that'd be done). A simple typedef later, and it's much simpler:</p>
+		
+			<div class="codeblock"><pre><code>typedef void (^Block)();
+Block (^myblockptr)(Block);</code></pre></div>
+		
+		<p>
+			<b>Declaring blocks</b> themselves is where we get into the unknown, as it doesn't really look like C, although they resemble function declarations. Let's start with the basics:
+		</p>
+			<div class="codeblock"><pre><code>myvar1 = returntype ^ (type arg1, type arg2, and so on) {
+	block contents;
+	like in a function;
+	return returnvalue;
+};</code></pre></div>
+
+		<p>This defines a <em>block literal</em> (from after <code>=</code> to and including <code>}</code>), explicitly mentions its return type, an argument list, the block body, a return statement, and assigns this literal to the variable myvar1.</p>
+		
+		<p>A <em>literal</em> is a value that can be built at compile-time. An integer literal (The <code>3</code> in <code>int a = 3;</code>) and a string literal (The <code>"foobar"</code> in <code>const char *b = "foobar";</code>) are other examples of literals. The fact that a block declaration is a literal is important later when we get into memory management.</p>
+		
+		<p>Finding a return statement in a block like this is vexing to some. Does it return from the enclosing function, you may ask? No, it returns a value that can be used by the caller of the block. See 'Calling blocks'.</p>
+		
+		<p>Finally, some parts of a block declaration are optional. These are:
+			<ul>
+				<li>The argument list. If the block takes no arguments, the argument list can be skipped entirely. Examples:
+					<div class="codeblock"><pre><code>myblock1 = int ^ (void) { return 3; }; // may be written as:
+myblock2 = int ^ { return 3; }
+</code></pre></div>
+				</li>
+				<li>The return type. If the block has no return statement, void is assumed. If the block has a return statement, the return type is inferred from it. This means you can almost always just skip the return type from the declaration, except in cases where it might be ambiguous. Examples:
+					<div class="codeblock"><pre><code>myblock3 = void ^ { printf("Hello.\n"); }; // may be written as:
+myblock4 = ^ { printf("Hello.\n"); };
+
+// Both succeed ONLY if myblock5 and myblock6 are of type int(^)(void)
+myblock5 = int ^ { return 3; }; // can be written as:
+myblock6 = ^ { return 3; };
+
+</code></pre></div>
+				</li>
+			</ul>
+		</p>
+		
+		<p>
+			<b>Calling blocks</b> is as easy as calling a function or a function pointer. If you take the value from calling the block, you will get the value returned 
+		</p>
+		
+		<p>
+			<b>Using variables in the closure scope</b> is very straight-forward if you're just reading them.
+	
+
+<h3><a name="objcblocks-memory" href="#objcblocks-memory">Memory Management</a></h3>
+
+
+
+
+
+
+<h2><a name="cblocks" href="#cblocks">Blocks in Objective-C</a></h2>
+<h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
+<h3><a name="cblocks-memory" href="#cblocks-memory">Memory Management</a></h3>
+
+
+<h2><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
+<p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected.</p>
+
+
+
+<h2><a name="references" href="#references">References and Additional Sources</a></h2>
+<ul>
+	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a></li>
+	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a> (requires ADC login and seed or WWDC attendance)</li>
+</ul>
+
+</div></body>
