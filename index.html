@@ -50,7 +50,12 @@
 
 
 	<h2><a name="whatareblocks" href="#whatareblocks">What are Blocks?</a></h2>
-		<p>Blocks are like functions, but written inline with the rest of your code, <em>inside</em> other functions. They are also called <a href="http://en.wikipedia.org/wiki/Closure_(computer_science)" title="Closure (computer science) - Wikipedia, the free encyclopedia">closures</a>, because they <em>close</em> around variables in your scope. (They can also be called lambdas). Let me demonstrate what this means:</p>
+		<p>
+			Blocks are like functions, but written inline with the rest of your code, <em>inside</em> other functions. They are also
+			called <a href="http://en.wikipedia.org/wiki/Closure_(computer_science)" title="Closure (computer science) - Wikipedia,
+			the free encyclopedia">closures</a>, because they <em>close</em> around variables in your scope. (They can also be called
+			lambdas). Let me demonstrate what this means:
+		</p>
 		<div class="codeblock">
 			<a class="codedownload" href="counter.zip">counter.zip</a>
 			<pre><code>#include &lt;stdio.h&gt;
@@ -86,20 +91,47 @@ int main() {
 			</code></pre>
 		</div>
 		
-		<p><code>counter</code> is an ordinary C function that returns one of these fabled <em>blocks</em>. When you have a reference to one, you can <em>call</em> it, just as if it was a function pointer. The difference is that the block can use the variables in <code>counter</code> <em>even after the call to that function has returned!</em> The variables <code>i</code> and <code>increment</code> have become a part of the state of the block <code>mycounter</code>. I will go into more detail of how each part of this example works in chapter 3.</p>
+		<p>
+			<code>counter</code> is an ordinary C function that returns one of these fabled <em>blocks</em>. When you have
+			a reference to one, you can <em>call</em> it, just as if it was a function pointer. The difference is that the
+			block can use the variables in <code>counter</code> <em>even after the call to that function has returned!</em>
+			The variables <code>i</code> and <code>increment</code> have become a part of the state of the block
+			<code>mycounter</code>. I will go into more detail of how each part of this example works in 
+			<a href="#cblocks">chapter 3</a>.
+		</p>
 		
-		<p><b>What are blocks useful for?</b> In Ruby, they are used in place of many control structures. The standard <code>for</code> loop is replaced by an ordinary function taking a block:</p>
+		<p>
+			<b>What are blocks useful for?</b> In Ruby, they are used in place of many control structures. The standard
+			<code>for</code> loop is replaced by an ordinary function taking a block:
+		</p>
+		
 		<div class="codeblock">
 			<pre><code>
 [1, 2, 3, 4].each do |i|
 	puts i
 end
 # outputs the numbers 1, 2, 3, 4 on a line each
-</code></pre></div>
+		</code></pre></div>
 
-		<p><code>each</code> is an ordinary function that takes a block: the block is the code between the 'do' and the 'end'. This is much more powerful than one might think, because with the ability to write your own control structures, you no longer need to depend on the evolution of the language to make your code terse and readable. Functional programming has many such useful control structures, such as the <a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)" title="Map (higher-order function) - Wikipedia, the free encyclopedia"><code>map</code></a> and <a href="http://en.wikipedia.org/wiki/Reduce_(higher-order_function)" title="Fold (higher-order function) - Wikipedia, the free encyclopedia"><code>reduce</code></a> functions; the first maps each value in a list to another value, while the second reduces a list of values to a single value (e g the sum of integers in the list). This is an entire topic in itself, and I encourage to learn more about functional programming on Wikipedia as I won't be covering that anymore here.</p>
+		<p>
+			<code>each</code> is an ordinary function that takes a block: the block is the code between the 'do' and the
+			'end'. This is much more powerful than one might think, because with the ability to write your own control
+			structures, you no longer need to depend on the evolution of the language to make your code terse and readable.
+			Functional programming has many such useful control structures, such as the
+			<a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)"title="Map (higher-order function) - Wikipedia,
+			the free encyclopedia"><code>map</code></a> and <a href="http://en.wikipedia.org/wiki/Reduce_(higher-order_function)"
+			title="Fold (higher-order function) - Wikipedia, the free encyclopedia"><code>reduce</code></a> functions; the
+			first maps each value in a list to another value, while the second reduces a list of values to a single value
+			(e g the sum of integers in the list). This is an entire topic in itself, and I encourage to learn more about
+			functional programming on Wikipedia as I won't be covering that anymore here.
+		</p>
 		
-		<p><b>What are blocks useful for?</b> In Erlang, they are used as a concurrency primitive together with the 'light-weight process', instead of the thread. This simple example looks through an array looking for a match, but each element is tested in its own separate process; each element being tested at the same time.</p>
+		<p>
+			<b>What are blocks useful for?</b> In Erlang, they are used as a concurrency primitive together with the 'light-weight
+			process', instead of the thread. This simple example looks through an array looking for a match, but each element is tested
+			in its own separate process; each element being tested at the same time.
+		</p>
+		
 		<div class="codeblock">
 			<pre><code>some_function() ->
   lists:for_each([1, 2, 3, 4], fun(element) -&gt; % [1]
@@ -119,8 +151,18 @@ end
 % Found a match: 3!
 % Found a match: 2!
 % OR with the lines swapped in any order, depending on scheduling
-</code></pre></div>
-	<p>Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered [1], we define an array with four numbers as elements, and calls the function <code>lists:for_each</code> with that list as a first argument, and a block taking one argument as the second argument (just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above). The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first block does is it <code>spawn</code>s a new Erlang process (line [2]), again taking a block as an argument to do the actual test, but now THIS block (line [2] still) is executing concurrently, and thus the test on line [3] is done concurrently for all elements in the array.</p>
+		</code></pre></div>
+		
+		<p>
+			Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered [1],
+			we define an array with four numbers as elements, and calls the function <code>lists:for_each</code>
+			with that list as a first argument, and a block taking one argument as the second argument
+			(just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above).
+			The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first
+			block does is it <code>spawn</code>s a new Erlang process (line [2]), again taking a block as an argument
+			to do the actual test, but now THIS block (line [2] still) is executing concurrently, and thus the test
+			on line [3] is done concurrently for all elements in the array.
+		</p>
 
 
 
@@ -129,19 +171,37 @@ end
 	<h2><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
 		<h3><a name="snowleo" href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></h3>
 			<ol>
-				<li>You're done! Block support is an integral part of Snow Leopard and there's nothing you need to do to use them. Even the standard library for blocks is included in libSystem, so you always automatically link with it.</li>
+				<li>
+					You're done! Block support is an integral part of Snow Leopard and there's nothing you need
+					to do to use them. Even the standard library for blocks is included in libSystem, so you
+					always automatically link with it.
+				</li>
 			</ol>
 			<p class="notetoself">
 				TODO Okay that's true for Cocoa apps, but what about plain C apps? Non-Xcode projects?
 			</p>
 
 		<h3><a name="leoiphone" href="#leoiphone">On Mac OS X 10.5 Leopard or for iPhone</a></h3>
-			<p>If you want to use blocks in applications targetting Mac OS 10.5 or the iPhone, and/or you're running 10.5, you need to use the third-party GCC fork <a href="http://code.google.com/p/plblocks/" title="plblocks - Project Hosting on Google Code">Plausible Blocks</a>. <a href="http://code.google.com/p/plblocks/" title="plblocks - Project Hosting on Google Code">From their site</a>:
+			<p>
+				If you want to use blocks in applications targetting Mac OS 10.5 or the iPhone, and/or you're running 10.5,
+				you need to use the third-party GCC fork <a href="http://code.google.com/p/plblocks/"
+				title="plblocks - Project Hosting on Google Code">Plausible Blocks</a>.
+				<a href="http://code.google.com/p/plblocks/" title="plblocks - Project Hosting on Google Code">
+				From their site</a>:
+				
 				<blockquote>
-					<p>Plausible Blocks (PLBlocks) provides a drop-in runtime and toolchain for using blocks in iPhone 2.2+ and Mac OS X 10.5 applications. Both the runtime and compiler patches are direct backports from Apple's Snow Leopard source releases.</p>
+					<p>
+						Plausible Blocks (PLBlocks) provides a drop-in runtime and toolchain for using blocks in iPhone 2.2+ and
+						Mac OS X 10.5 applications. Both the runtime and compiler patches are direct backports from Apple's Snow
+						Leopard source releases.
+					</p>
 
-					<p>PLBlocks is provided by <a href="http://www.plausiblelabs.com/" title="Welcome to Plausible Labs">Plausible Labs</a>.</p>
+					<p>
+						PLBlocks is provided by <a href="http://www.plausiblelabs.com/" title="Welcome to Plausible Labs">
+						Plausible Labs</a>.
+					</p>
 				</blockquote>
+				
 			<ol>
 				<li>Download the latest plblocks disk image for your OS from the <a href="http://code.google.com/p/plblocks/downloads/list" title="Downloads - plblocks - Project Hosting on Google Code">Google Code page</a>.</li>
 				<li>Mount the disk image and run the installer. When done, keep the disk image mounted — you'll need it later.</li>
@@ -165,58 +225,94 @@ end
 <h2><a name="objcblocks" href="#objcblocks">Blocks in C</a></h2>
 	<h3><a name="objcblocks-usage" href="#objcblocks-usage">Syntax and Usage</a></h3>
 		<p>
-			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to functions, except <code>*</code> is substituted for <code>^</code>. For example, this is a function pointer to a function taking an int and returning a float:
+			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to
+			functions, except <code>*</code> is substituted for <code>^</code>. For example, this is a function
+			pointer to a function taking an int and returning a float:
 		</p>
 		
 		<div class="codeblock"><code>float (*myfuncptr)(int);</code></div>
 		
-		<p>and this is a block pointer to a block taking an int and returning a float:</p>
+		<p>
+			and this is a block pointer to a block taking an int and returning a float:
+		</p>
 		
 		<div class="codeblock"><code>float (^myblockptr)(int);</code></div>
 	
-		<p>As with function pointers, you'll likely want to typedef those types, as it can get relatively hairy otherwise. For example, a pointer to a block returning a block taking a block would be something like <code>void(^)(void) (^myblockptr)(void(^)())</code>, which is nigh impossible to read (and doesn't even compile, I'm not sure how that'd be done). A simple typedef later, and it's much simpler:</p>
+		<p>
+			As with function pointers, you'll likely want to typedef those types, as it can get relatively
+			hairy otherwise. For example, a pointer to a block returning a block taking a block would be something
+			like <code>void(^)(void) (^myblockptr)(void(^)())</code>, which is nigh impossible to read (and doesn't
+			even compile, I'm not sure how that'd be done). A simple typedef later, and it's much simpler:
+		</p>
 		
-			<div class="codeblock"><pre><code>typedef void (^Block)();
+		<div class="codeblock"><pre><code>typedef void (^Block)();
 Block (^myblockptr)(Block);</code></pre></div>
 		
 		<p>
-			<b>Declaring blocks</b> themselves is where we get into the unknown, as it doesn't really look like C, although they resemble function declarations. Let's start with the basics:
+			<b>Declaring blocks</b> themselves is where we get into the unknown, as it doesn't really look like C,
+			although they resemble function declarations. Let's start with the basics:
 		</p>
-			<div class="codeblock"><pre><code>myvar1 = ^ returntype (type arg1, type arg2, and so on) {
+		
+		<div class="codeblock"><pre><code>myvar1 = ^ returntype (type arg1, type arg2, and so on) {
 	block contents;
 	like in a function;
 	return returnvalue;
 };</code></pre></div>
 
-		<p>This defines a <em>block literal</em> (from after <code>=</code> to and including <code>}</code>), explicitly mentions its return type, an argument list, the block body, a return statement, and assigns this literal to the variable myvar1.</p>
+		<p>
+			This defines a <em>block literal</em> (from after <code>=</code> to and including <code>}</code>),
+			explicitly mentions its return type, an argument list, the block body, a return statement, and
+			assigns this literal to the variable myvar1.
+		</p>
 		
-		<p>A <em>literal</em> is a value that can be built at compile-time. An integer literal (The <code>3</code> in <code>int a = 3;</code>) and a string literal (The <code>"foobar"</code> in <code>const char *b = "foobar";</code>) are other examples of literals. The fact that a block declaration is a literal is important later when we get into memory management.</p>
+		<p>
+			A <em>literal</em> is a value that can be built at compile-time. An integer literal (The
+			<code>3</code> in <code>int a = 3;</code>) and a string literal (The <code>"foobar"</code> in
+			<code>const char *b = "foobar";</code>) are other examples of literals. The fact that a block
+			declaration is a literal is important later when we get into memory management.
+		</p>
 		
-		<p>Finding a return statement in a block like this is vexing to some. Does it return from the enclosing function, you may ask? No, it returns a value that can be used by the caller of the block. See 'Calling blocks'. Note: If the block has multiple return statements, they must return the same type.</p>
+		<p>
+			Finding a return statement in a block like this is vexing to some. Does it return from
+			the enclosing function, you may ask? No, it returns a value that can be used by the caller
+			of the block. See 'Calling blocks'. Note: If the block has multiple return statements,
+			they must return the same type.
+		</p>
 		
-		<p>Finally, some parts of a block declaration are optional. These are:
+		<p>
+			Finally, some parts of a block declaration are optional. These are:
+			
 			<ul>
-				<li>The argument list. If the block takes no arguments, the argument list can be skipped entirely. Examples:
+				<li>
+					The argument list. If the block takes no arguments, the argument list can be skipped entirely. Examples:
 					<div class="codeblock"><pre><code>myblock1 = ^ int (void) { return 3; }; // may be written as:
-myblock2 = int ^ { return 3; }
+myblock2 = ^ int { return 3; }
 </code></pre></div>
 				</li>
-				<li>The return type. If the block has no return statement, void is assumed. If the block has a return statement, the return type is inferred from it. This means you can almost always just skip the return type from the declaration, except in cases where it might be ambiguous. Examples:
+				
+				<li>
+					The return type. If the block has no return statement, void is assumed. If the block has a return
+					statement, the return type is inferred from it. This means you can almost always just skip the
+					return type from the declaration, except in cases where it might be ambiguous. Examples:
+					
 					<div class="codeblock"><pre><code>myblock3 = ^ void { printf("Hello.\n"); }; // may be written as:
 myblock4 = ^ { printf("Hello.\n"); };
 
 // Both succeed ONLY if myblock5 and myblock6 are of type int(^)(void)
 myblock5 = ^ int { return 3; }; // can be written as:
 myblock6 = ^ { return 3; };
-
-</code></pre></div>
+					</code></pre></div>
+				
 				</li>
+				
 			</ul>
 		</p>
 		
 		<p>
-			<b>Calling blocks</b> is as easy as calling a function or a function pointer. If you take the value from calling the block, you will get the value returned with <code>return</code>. Example:
+			<b>Calling blocks and returning values</b> is as easy with a function or a function pointer. If you take the
+			value from calling the block, you will get the value returned with <code>return</code>. Example:
 		</p>
+		
 		<div class="codeblock"><pre><code>typedef int(^IntBlock)();
 IntBlock threeBlock = ^ { 
 	return 3;
@@ -229,21 +325,214 @@ IntBlock fourBlock = ^ {
 };
 // Yields on compile:
 //  error: incompatible block pointer types initializing 'void (^)(void)', expected 'IntBlock'
-// This is because we didn't specify return type, thus implying void return.
+// This is because we neither specified the return type, 
+// nor provided a return statement, thus implying void return.
 
 		</code></pre></div>
 		
 		
 		<p>
-			<b>Using variables in the closure scope</b> is very straight-forward if you're just reading them.
+			<b>Using variables in the closure scope</b> is very straight-forward if you're just reading them. Just use them,
+			and they will be magically managed by your block. However, if you want to be able to modify the variable, it need to be
+			prefixed by the <code>__block</code> storage qualifier. Let's make the counter from the first example go forwards AND
+			backwards:
+		</p>
+		
+		<div class="codeblock">
+			<a class="codedownload" href="counter2.zip">counter2.zip</a>
+			<pre><code>#include &lt;stdio.h&gt;
+#include &lt;Block.h&gt;
+
+typedef int (^IntBlock)();
+typedef struct {
+	IntBlock forward;
+	IntBlock backward;
+} Counter;
+
+Counter MakeCounter(int start, int increment) {
+	Counter counter;
+
+	__block int i = start;
+
+	counter.forward = Block_copy( ^ {
+		i += increment;
+		return i;
+	});
+	counter.backward = Block_copy( ^ {
+		i -= increment;
+		return i;
+	});
+
+	return counter;
+
+}
+
+int main() {
+	Counter counter = MakeCounter(5, 2);
+	printf("Forward one: %d\n", counter.forward());
+	printf("Forward one more: %d\n", counter.forward());
+	printf("Backward one: %d\n", counter.backward());
+
+	Block_release(counter.forward);
+	Block_release(counter.backward);
+
+	return 0;
+}
+/* Outputs:
+Forward one: 7
+Forward one more: 9
+Backward one: 7
+*/
+		</code></pre></div>
+			
+		<p>
+			Note how we in the blocks use increment without doing any work, yet reference it outside the MakeCounter function.
+			However, we only <em>read</em> from it. We also use <code>i</code>, but we modify it from inside the blocks. Thus,
+			we need the <code>__block</code> keyword with that variable.
+		</p>
+		
+		
+		<p>
+			<b>Sending and taking blocks as arguments</b> is again like doing so with function pointers. The difference is that
+			you can define your block inline, in the call.
+		</p>
+		
+		<div class="codeblock">
+			<a class="codedownload" href="intforeach.zip">blockarguments.zip</a>
+			<pre><code>#include &lt;stdio.h&gt;
+#include &lt;Block.h&gt;
+
+void intforeach(int *array, unsigned count, void(^callback)(int))
+{
+	for(unsigned i = 0; i &lt; count; i++)
+		callback(array[i]);
+}
+
+int main (int argc, const char * argv[]) {
+	int numbers[] = {72, 101, 108, 108, 111, 33};
 	
+	intforeach(numbers, 6, ^ (int number) {
+		printf("%c", number);
+	});
+	printf("\n");
+	
+	return 0;
+}
+/* Outputs:
+Hello!
+*/</code></pre></div>
+		
+		<p>Notice how we call intforeach with an inline block. (If you're wondering about the numbers: they are the ascii codes for the letters in the word "Hello!"), and how intforeach could have been an ordinary C function taking a function pointer and still be written the exact same way except for switching the <code>^</code> for a <code>*</code>.
+
 
 <h3><a name="objcblocks-memory" href="#objcblocks-memory">Memory Management</a></h3>
+	
+	<p>
+		What does 'memory management' in the context of blocks mean? It doesn't mean storage for the actual code.
+		The code of the block is compiled and loaded like any other function. The memory a block requires is that
+		of the variables it has closed around; that is, any variables the block references need to be copied
+		into the block's private memory.
+	</p>
+	
+	<p>
+		So far, we have just assumed that the memory has somehow magically become part of the block,
+		and will magically disappear. Unfortunately Apple haven't added a garbage collector to C,
+		so that's not quite the case. However, to understand the following, you must have a basic
+		understanding of <a href="http://en.wikipedia.org/wiki/Stack-based_memory_allocation"
+		title="Stack-based memory allocation - Wikipedia, the free encyclopedia">stack</a>
+		and <a href="http://en.wikipedia.org/wiki/Dynamic_memory_allocation"
+		title="Dynamic memory allocation - Wikipedia, the free encyclopedia">heap</a> memory,
+		and how they differ.
+	</p>
+	
+	<p>
+		When you define a <em>block literal</em>, you create the storage for this literal <em>on the stack</em>.
+		The variable pointing to this literal can still be considered a pointer, however. This means that
+		the following code compiles, but does not work:
+	</p>
+	
+	<div class="codeblock"><pre><code>typedef void(^Block)(void);
 
+Block blockMaker() {
+	int a = 3; // [1]
+	Block block = ^ { // [2]
+		return a;
+	}
+	return block; // [3]
+}
+int main() {
+	Block block2 = blockMaker(); // [4]
+	int b = block2(); // [5]
+	return 0;
+}
+</code></pre></div>
+	<p>
+		At [1], the value <code>3</code> is allocated on the stack and named <code>a</code>, as expected.
+		At [2] and the following block, the value of <code>a</code> is copied into the block literal. Then,
+		also at [2], a pointer to the literal is in turn assigned to the variable <code>block</code>.
+		If you think of Block as just a pointer type, and the assignment in [2] as taking the address of a literal,
+		you might see why [3] is invalid, but we'll get to that.
+	</p>
+	<p>
+		In [4], the variable <code>block2</code> gets a reference to the literal in [2]. However, both
+		the variables <code>a</code> and <code>block</code> have now fallen off the stack, as
+		<code>blockMaker</code> has returned. When we call <code>block2</code> in [5], we might
+		segfault, get a corrupted value, or whatever — the behavior is undefined.
+	</p>
+	
+	<p>
+		The same effect can be demonstrated without involving blocks:
+	</p>
 
+	<div class="codeblock"><pre><code>int * intMaker() {
+	int a = 3; // [1]
+	return &amp;a; // [2]
+}
+int main() {
+	int *b = intMaker(); // [3]
+	return 0;
+}</code></pre></div>
+	
+	<p>
+		<code>intMaker</code> returns a pointer to an object on the stack, which will disappear together with the
+		rest of the state of the function call when <code>intMaker</code> returns.
+	</p>
+	
+	<p>
+		How do work around this problem? Simple — we move the block to the <em>heap</em>. The function
+		<code>Block_copy()</code> takes a block pointer, and if it's a stack block, copies it to the
+		heap, or if it's already a heap block, increases its retain count (like an immutable object
+		in Cocoa would do). Exactly what happens is an implementation detail, but the thing to
+		take away is that you should never return a block literal from a function, but rather
+		a copy of it.
+	</p>
+	<p>
+		When we're done with the block, just release it with <code>Block_release()</code>. Thus,
+		the correct way to implement the blockMaker example is like so:
+	</p>
+	
+	<div class="codeblock"><pre><code>typedef void(^Block)(void);
 
+Block blockMaker() {
+	int a = 3;
+	Block block = ^ {
+		return a;
+	}
+	return Block_copy(block); // [1]
+}
+int main() {
+	Block block2 = blockMaker();
+	int b = block2();
+	Block_release(block2); // [2]
+	
+	return 0;
+}
+</code></pre></div>
 
-
+	<p>
+		Notice how we move the block to the heap in [1], and discard the block when we're done with it in [2].
+		For anyone who has done Cocoa or CoreFoundation programming, this pattern should be familiar.
+	</p>
 
 <h2><a name="cblocks" href="#cblocks">Blocks in Objective-C</a></h2>
 <h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
@@ -251,7 +540,7 @@ IntBlock fourBlock = ^ {
 
 
 <h2><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
-<p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected.</p>
+<p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected. Read-only variables are const-copied into the block.</p>
 
 
 
