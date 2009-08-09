@@ -182,7 +182,7 @@ Block (^myblockptr)(Block);</code></pre></div>
 		<p>
 			<b>Declaring blocks</b> themselves is where we get into the unknown, as it doesn't really look like C, although they resemble function declarations. Let's start with the basics:
 		</p>
-			<div class="codeblock"><pre><code>myvar1 = returntype ^ (type arg1, type arg2, and so on) {
+			<div class="codeblock"><pre><code>myvar1 = ^ returntype (type arg1, type arg2, and so on) {
 	block contents;
 	like in a function;
 	return returnvalue;
@@ -192,21 +192,21 @@ Block (^myblockptr)(Block);</code></pre></div>
 		
 		<p>A <em>literal</em> is a value that can be built at compile-time. An integer literal (The <code>3</code> in <code>int a = 3;</code>) and a string literal (The <code>"foobar"</code> in <code>const char *b = "foobar";</code>) are other examples of literals. The fact that a block declaration is a literal is important later when we get into memory management.</p>
 		
-		<p>Finding a return statement in a block like this is vexing to some. Does it return from the enclosing function, you may ask? No, it returns a value that can be used by the caller of the block. See 'Calling blocks'.</p>
+		<p>Finding a return statement in a block like this is vexing to some. Does it return from the enclosing function, you may ask? No, it returns a value that can be used by the caller of the block. See 'Calling blocks'. Note: If the block has multiple return statements, they must return the same type.</p>
 		
 		<p>Finally, some parts of a block declaration are optional. These are:
 			<ul>
 				<li>The argument list. If the block takes no arguments, the argument list can be skipped entirely. Examples:
-					<div class="codeblock"><pre><code>myblock1 = int ^ (void) { return 3; }; // may be written as:
+					<div class="codeblock"><pre><code>myblock1 = ^ int (void) { return 3; }; // may be written as:
 myblock2 = int ^ { return 3; }
 </code></pre></div>
 				</li>
 				<li>The return type. If the block has no return statement, void is assumed. If the block has a return statement, the return type is inferred from it. This means you can almost always just skip the return type from the declaration, except in cases where it might be ambiguous. Examples:
-					<div class="codeblock"><pre><code>myblock3 = void ^ { printf("Hello.\n"); }; // may be written as:
+					<div class="codeblock"><pre><code>myblock3 = ^ void { printf("Hello.\n"); }; // may be written as:
 myblock4 = ^ { printf("Hello.\n"); };
 
 // Both succeed ONLY if myblock5 and myblock6 are of type int(^)(void)
-myblock5 = int ^ { return 3; }; // can be written as:
+myblock5 = ^ int { return 3; }; // can be written as:
 myblock6 = ^ { return 3; };
 
 </code></pre></div>
@@ -215,8 +215,24 @@ myblock6 = ^ { return 3; };
 		</p>
 		
 		<p>
-			<b>Calling blocks</b> is as easy as calling a function or a function pointer. If you take the value from calling the block, you will get the value returned 
+			<b>Calling blocks</b> is as easy as calling a function or a function pointer. If you take the value from calling the block, you will get the value returned with <code>return</code>. Example:
 		</p>
+		<div class="codeblock"><pre><code>typedef int(^IntBlock)();
+IntBlock threeBlock = ^ { 
+	return 3;
+};
+int three = threeBlock();
+
+// Return values work just as in C functions. return needs to be explicit! This is not Ruby.
+IntBlock fourBlock = ^ {
+	4;
+};
+// Yields on compile:
+//  error: incompatible block pointer types initializing 'void (^)(void)', expected 'IntBlock'
+// This is because we didn't specify return type, thus implying void return.
+
+		</code></pre></div>
+		
 		
 		<p>
 			<b>Using variables in the closure scope</b> is very straight-forward if you're just reading them.
