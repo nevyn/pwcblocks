@@ -429,9 +429,9 @@ Hello!
 	
 	<p>
 		What does 'memory management' in the context of blocks mean? It doesn't mean storage for the actual code.
-		The code of the block is compiled and loaded like any other function. The memory a block requires is that
-		of the variables it has closed around; that is, any variables the block references need to be copied
-		into the block's private memory.
+		The code of the block is compiled and loaded into the binary like any other function. The memory a block
+		requires is that of the variables it has closed around; that is, any variables the block references need
+		to be copied into the block's private memory.
 	</p>
 	
 	<p>
@@ -475,7 +475,8 @@ int main() {
 	</p>
 	<p>
 		In [4], the variable <code>block2</code> gets a reference to the literal in [2]. However, both
-		the variables <code>a</code> and <code>block</code> have now fallen off the stack, as
+		the variables <code>a</code> and <code>block</code> (together with <code>block</code>s copy of
+		the value in <code>a</code>) have now fallen off the stack, as
 		<code>blockMaker</code> has returned. When we call <code>block2</code> in [5], we might
 		segfault, get a corrupted value, or whatever — the behavior is undefined.
 	</p>
@@ -532,6 +533,11 @@ int main() {
 	<p>
 		Notice how we move the block to the heap in [1], and discard the block when we're done with it in [2].
 		For anyone who has done Cocoa or CoreFoundation programming, this pattern should be familiar.
+	</p>
+	
+	<p>
+		(An aside: If you try to return a literal like so: <code>Block foo() { return ^ { printf("Fail") }; }</code>,
+		the compiler will complain that you are trying to return a stack literal, which isn't possible.)
 	</p>
 
 <h2><a name="cblocks" href="#cblocks">Blocks in Objective-C</a></h2>
