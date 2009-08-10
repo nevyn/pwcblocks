@@ -34,12 +34,7 @@
 					<li><a href="#cblocks-memory">Memory Management</a></li>
 				</ol>
 			</li>
-			<li><a href="#objcblocks">Blocks in Objective-C
-				<ol>
-					<li><a href="#objcblocks-usage">Syntax and Usage</a></li>
-					<li><a href="#objcblocks-memory">Memory Management</a></li>
-				</ol>
-			</li>
+			<li><a href="#objcblocks"><strong>Blocks in Objective-C</strong></li>
 			<li><a href="#cppblocks">Blocks in C++</a></li>
 			<li><a href="#references">References and Additional Sources</a></li>
 			<li><a href="#versions">Version History</a></li>
@@ -541,8 +536,47 @@ int main() {
 	</p>
 
 <h2><a name="cblocks" href="#cblocks">Blocks in Objective-C</a></h2>
-<h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
-<h3><a name="cblocks-memory" href="#cblocks-memory">Memory Management</a></h3>
+	<p>
+		The really weird and wonderful thing about blocks are that they are actually Objective-C objects.
+		Even if you create them from a C++ library, the specification says that every block must
+		have the memory layout of an Objective-C object. The runtime then adds four Objective-C methods
+		to them, which allow them to be stored in collections, used with properties, and just generally
+		<em>work</em> everywhere you'd want. These methods are:
+		<ul>
+			<li>
+				<code>-[Block copy]</code>: Exactly the same as <code>Block_copy()</code>. This will give you a block
+				on the heap with an owning reference, just like calling <code>-[NSObject copy]</code> on any other
+				object.
+			</li>
+			<li>
+				<code>-[Block retain]</code>: This one is a bit weird, and almost the single reason why
+				I wrote this entire guide. This calls Block_retain(). However, the conventions for Objective-C
+				objects say that retain MUST return the same instance that it was called with. This means
+				that retain cannot call copy; I'll get to why this is really, really annoying.
+			</li>
+			<li>
+				<code>-[Block release]</code>: Block_release().
+			</li>
+				<code>-[Block autorelease]</code>: That's right, <b>blocks can be autoreleased</b>!
+		</ul>
+	</p>
+	
+	<p>
+		toheap
+	</p>
+	
+	<p>
+		syntax for properties
+	</p>
+	
+	<p>
+		as arguments
+	</p>
+	
+	<p>
+		autoretain
+	</p>
+
 
 
 <h2><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
