@@ -129,17 +129,17 @@ end
 		
 		<div class="codeblock">
 			<pre><code>some_function() ->
-  lists:for_each([1, 2, 3, 4], fun(element) -&gt; % [1]
-    spawn(fun -&gt; % [2]
+  lists:for_each([1, 2, 3, 4], fun(element) -&gt; % (1)
+    spawn(fun -&gt; % (2)
       if
-        element &gt; 1 andalso element &lt; 4 -&gt; % [3]
-          io:format("Found a match: ~p!~n", [element]); % [4]
+        element &gt; 1 andalso element &lt; 4 -&gt; % (3)
+          io:format("Found a match: ~p!~n", [element]); % (4)
         true -&gt; true
       end
     end
   end),
   io:format("This line appears after the above statement, "
-            "but still executes before the code in it."). % [5]
+            "but still executes before the code in it."). % (5)
 	
 % Outputs:
 % This line appears after the above statement, but still executes before the code in it.
@@ -149,14 +149,14 @@ end
 		</code></pre></div>
 		
 		<p>
-			Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered [1],
+			Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1),
 			we define an array with four numbers as elements, and calls the function <code>lists:for_each</code>
 			with that list as a first argument, and a block taking one argument as the second argument
 			(just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above).
 			The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first
-			block does is it <code>spawn</code>s a new Erlang process (line [2]), again taking a block as an argument
-			to do the actual test, but now THIS block (line [2] still) is executing concurrently, and thus the test
-			on line [3] is done concurrently for all elements in the array.
+			block does is it <code>spawn</code>s a new Erlang process (line (2)), again taking a block as an argument
+			to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test
+			on line (3) is done concurrently for all elements in the array.
 		</p>
 
 
@@ -217,8 +217,8 @@ end
 		</p>
 
 
-<h2><a name="objcblocks" href="#objcblocks">Blocks in C</a></h2>
-	<h3><a name="objcblocks-usage" href="#objcblocks-usage">Syntax and Usage</a></h3>
+<h2><a name="cblocks" href="#cblocks">Blocks in C</a></h2>
+	<h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
 		<p>
 			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to
 			functions, except <code>*</code> is substituted for <code>^</code>. For example, this is a function
@@ -420,7 +420,7 @@ Hello!
 		<p>Notice how we call intforeach with an inline block. (If you're wondering about the numbers: they are the ascii codes for the letters in the word "Hello!"), and how intforeach could have been an ordinary C function taking a function pointer and still be written the exact same way except for switching the <code>^</code> for a <code>*</code>.
 
 
-<h3><a name="objcblocks-memory" href="#objcblocks-memory">Memory Management</a></h3>
+<h3><a name="cblocks-memory" href="#cblocks-memory">Memory Management</a></h3>
 	
 	<p>
 		What does 'memory management' in the context of blocks mean? It doesn't mean storage for the actual code.
@@ -449,30 +449,30 @@ Hello!
 	<div class="codeblock"><pre><code>typedef void(^Block)(void);
 
 Block blockMaker() {
-	int a = 3; // [1]
-	Block block = ^ { // [2]
+	int a = 3; // (1)
+	Block block = ^ { // (2)
 		return a;
 	}
-	return block; // [3]
+	return block; // (3)
 }
 int main() {
-	Block block2 = blockMaker(); // [4]
-	int b = block2(); // [5]
+	Block block2 = blockMaker(); // (4)
+	int b = block2(); // (5)
 	return 0;
 }
 </code></pre></div>
 	<p>
-		At [1], the value <code>3</code> is allocated on the stack and named <code>a</code>, as expected.
-		At [2] and the following block, the value of <code>a</code> is copied into the block literal. Then,
-		also at [2], a pointer to the literal is in turn assigned to the variable <code>block</code>.
-		If you think of Block as just a pointer type, and the assignment in [2] as taking the address of a literal,
-		you might see why [3] is invalid, but we'll get to that.
+		At (1), the value <code>3</code> is allocated on the stack and named <code>a</code>, as expected.
+		At (2) and the following block, the value of <code>a</code> is copied into the block literal. Then,
+		also at (2), a pointer to the literal is in turn assigned to the variable <code>block</code>.
+		If you think of Block as just a pointer type, and the assignment in (2) as taking the address of a literal,
+		you might see why (3) is invalid, but we'll get to that.
 	</p>
 	<p>
-		In [4], the variable <code>block2</code> gets a reference to the literal in [2]. However, both
+		In (4), the variable <code>block2</code> gets a reference to the literal in (2). However, both
 		the variables <code>a</code> and <code>block</code> (together with <code>block</code>s copy of
 		the value in <code>a</code>) have now fallen off the stack, as
-		<code>blockMaker</code> has returned. When we call <code>block2</code> in [5], we might
+		<code>blockMaker</code> has returned. When we call <code>block2</code> in (5), we might
 		segfault, get a corrupted value, or whatever — the behavior is undefined.
 	</p>
 	
@@ -481,17 +481,17 @@ int main() {
 	</p>
 
 	<div class="codeblock"><pre><code>int * intMaker() {
-	int a = 3; // [1]
-	return &amp;a; // [2]
+	int a = 3; // (1)
+	return &amp;a; // (2)
 }
 int main() {
-	int *b = intMaker(); // [3]
+	int *b = intMaker(); // (3)
 	return 0;
 }</code></pre></div>
 	
 	<p>
-		<code>intMaker</code> returns a pointer to an object on the stack, which will disappear together with the
-		rest of the state of the function call when <code>intMaker</code> returns.
+		<code>intMaker</code> returns a pointer to an object on the stack (1), which will disappear together with the
+		rest of the state of the function call when <code>intMaker</code> returns (2).
 	</p>
 	
 	<p>
@@ -514,19 +514,19 @@ Block blockMaker() {
 	Block block = ^ {
 		return a;
 	}
-	return Block_copy(block); // [1]
+	return Block_copy(block); // (1)
 }
 int main() {
 	Block block2 = blockMaker();
 	int b = block2();
-	Block_release(block2); // [2]
+	Block_release(block2); // (2)
 	
 	return 0;
 }
 </code></pre></div>
 
 	<p>
-		Notice how we move the block to the heap in [1], and discard the block when we're done with it in [2].
+		Notice how we move the block to the heap in (1), and discard the block when we're done with it in (2).
 		For anyone who has done Cocoa or CoreFoundation programming, this pattern should be familiar.
 	</p>
 	
@@ -535,13 +535,13 @@ int main() {
 		the compiler will complain that you are trying to return a stack literal, which isn't possible.)
 	</p>
 
-<h2><a name="cblocks" href="#cblocks">Blocks in Objective-C</a></h2>
+<h2><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
 	<p>
-		The really weird and wonderful thing about blocks are that they are actually Objective-C objects.
+		The really weird and wonderful thing about blocks is that <strong>blocks are actually Objective-C objects</strong>.
 		Even if you create them from a C++ library, the specification says that every block must
-		have the memory layout of an Objective-C object. The runtime then adds four Objective-C methods
+		have the memory layout of an Objective-C object. The runtime then adds Objective-C methods
 		to them, which allow them to be stored in collections, used with properties, and just generally
-		<em>work</em> everywhere you'd want. These methods are:
+		<em>work</em> wherever you'd expect. These methods are:
 		<ul>
 			<li>
 				<code>-[Block copy]</code>: Exactly the same as <code>Block_copy()</code>. This will give you a block
@@ -555,26 +555,181 @@ int main() {
 				that retain cannot call copy; I'll get to why this is really, really annoying.
 			</li>
 			<li>
-				<code>-[Block release]</code>: Block_release().
+				<code>-[Block release]</code>: <a href="#cblocks-memory"><code>Block_release()</code></a>.
 			</li>
+			<li>
 				<code>-[Block autorelease]</code>: That's right, <b>blocks can be autoreleased</b>!
+			</li>
+			<li>
+				… And blocks inherit from NSObject, so whatever is defined on it (including your categories!) <a href="#ref3">[4]</a>
+			</li>
 		</ul>
 	</p>
 	
 	<p>
-		toheap
+		Blocks in Objective-C have one more very important difference from blocks in C in handling
+		variables that reference objects. All local objects are <strong>automatically retained as they
+		are referenced!</strong> If you reference an instance variable from a block declared in a method,
+		this retains self, as you're implicitly doing <code>self->theIvar</code>. An example is in order:
+	</p>
+	
+	<div class="codeblock">
+		<a class="codedownload" href="logmessage.zip">logmessage.zip</a>
+		<pre><code>typedef void(^BasicBlock)(void);
+@interface LogMessage : NSObject {
+	NSString *logLevel;
+}
+@end
+@implementation LogMessage
+-(BasicBlock)printLater:(NSString*)someObject;
+{
+	return [[^ {
+		NSLog(@"%@: %@", 
+			logLevel,  // (1)
+			someObject // (2)
+		);
+	} copy] autorelease]; // (3)
+}
+@end
+</code></pre></div>
+	
+	<p>
+		Here's a method that simply returns a block that lets you print the given string, prefixed by the object's log level.
+		In (3), the block is copied, because <a href="#cblocks-memory">as you remember</a>, you can't return a block literal since it's on the stack.
+		Still, we want to follow common Cocoa patterns and never return an owning reference from a method called neither
+		<code>copy</code>, <code>retain</code> nor <code>alloc</code>. This gives us the idiom <code>[[^{} copy] autorelease]</code>,
+		which is what you should always use when returning blocks.
 	</p>
 	
 	<p>
-		syntax for properties
+		Now, for the auto retaining magic, notice how we reference the argument object <code>someObject</code>
+		in (2), and implicitly <code>self</code> in (1) (which really says <code>self->logLevel</code>).
+		When the block is copied in (3), Block_copy notices that logLevel and someObject are objects,
+		and retains them. When the block is released, it will free all its captured variables,
+		and if they are objects, release them.
 	</p>
 	
 	<p>
-		as arguments
+		With even <code>self</code> being retained, this is a very easy way to accidentally create
+		reference cycles and thus memory leaks. What if you want to avoid this behavior? Just give the variable
+		<code>__block</code> storage (Thanks to mikeash<a href="#ref3">[4]</a> for pointing this out). Example:
+	</p>
+	<div class="codeblock">
+		<pre><code>-(void)someMethod;
+{
+	__block TypeOfSelf *blockSelf = self;
+	^ {
+		// Because blockSelf is __block, the following reference
+		// won't retain self:
+		blockSelf->myIvar += 3;
+	}
+	...
+}</code></pre></div>
+	
+	<p>
+		Finally, one more memory management gotcha before we move onto syntax. Remember that blocks are objects?
+		And objects are automatically retained? Yes, that's right, blocks also automatically retain
+		blocks they refer to! (<a href="http://nopaste.me/4308" title="Objective C nopaste.me">My research</a>.)
+		This means that the following code will work fine:
+	</p>
+		<div class="codeblock">
+			<pre><code>typedef void(^BasicBlock)(void);
+				
+// Returns a block that aborts the process
+-(BasicBlock)doSomethingAsynchronous;
+{
+	BasicBlock cleanup = [[^{
+		// Do some common cleanup needed in all cases
+	} copy] autorelease];
+	
+	__block AsyncDownloader *downloader = [AsyncDownloader fetch:@"http://domain/some.file" options:$dict(
+		@"success": [[^ {
+			[downloader.dataValue writeToFile:@"some/path" atomically:NO];
+			DisplayAlert(@"Download complete");
+			cleanup();
+		} copy] autorelease],
+		@"failure": [[^ {
+			DisplayAlert(@"Error: %@", downloader.error);
+			cleanup();
+		} copy] autorelease]
+	)];
+	
+	return [[^ {
+		[downloader abort];
+		cleanup();
+	} copy] autorelease];
+}</code></pre></div>
+	
+	<p>
+		Notice how <code>downloader</code> is declared <code>__block</code> — otherwise me referencing it
+		in the callback blocks would retain it, and the downloader retains the blocks, thus creating a cycle.
+		<a href="https://bitbucket.org/snej/myutilities/src/tip/CollectionUtils.h">$dict is a very handy macro</a>
+		which creates a dictionary from key-value pairs (the NSDictionary constructor is too verbose for my taste).
+	</p>
+	<p>
+		Notice how all three blocks reference the cleanup block: it is thus retained and properly memory managed
+		until the referring blocks disappear.
 	</p>
 	
 	<p>
-		autoretain
+		This example also highlights a problem with stack block literals — collections, such as NSDictionary above,
+		<code>retain</code>s its values, but <code>-[Block retain]</code> doesn't do anything on stack blocks!
+		Thus, we must move the blocks to the heap before we can insert them into the dictionary.
+	</p>
+	
+	<p>
+		Finally, the somewhat hairy syntax for non-typedef'd blocks as Objective-C method arguments, and
+		how to declare them as properties:
+	</p>
+	
+	<div class="codeblock">
+		<a class="codedownload" href="propertyblocks.zip">propertyblocks.zip</a>
+		<pre><code>#import &lt;Foundation/Foundation.h&gt;
+#import &lt;stdlib.h&gt;
+
+@interface PredicateRunner : NSObject
+{
+	BOOL (^predicate)();
+}
+@property (copy) BOOL (^predicate)();
+-(void)callTrueBlock:(void(^)())true_ falseBlock:(void(^)())false_;
+@end
+
+@implementation PredicateRunner
+@synthesize predicate;
+-(void)callTrueBlock:(void(^)())true_ falseBlock:(void(^)())false_;
+{
+	if(predicate())
+		true_();
+	else 
+		false_();
+
+}
+-(void)dealloc;
+{
+	self.predicate = nil;
+	[super dealloc];
+}
+@end
+
+
+
+int main (int argc, const char * argv[]) {
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	srandom(time(NULL));
+
+	PredicateRunner *pr = [[PredicateRunner new] autorelease];
+	pr.predicate = ^ BOOL {
+		return random()%2;
+	};
+	[pr callTrueBlock:^ {NSLog(@"Yeah");} falseBlock:^ {NSLog(@"Nope");} ];
+
+	[pool drain];
+	return 0;
+}</code></pre></div>
+
+	<p>
+		Typedefs will make that much easier to read, though.
 	</p>
 
 
@@ -585,9 +740,17 @@ int main() {
 
 
 <h2><a name="references" href="#references">References and Additional Sources</a></h2>
+
+	<p>
+		If you want to read more about blocks, the following links are great places to keep
+		reading:
+	</p>
+
 <ul>
 	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a></li>
 	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a> (requires ADC login and seed or WWDC attendance)</li>
+	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Block Implementation spec</a></li>
+	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a></li>
 </ul>
 
 </div></body>
