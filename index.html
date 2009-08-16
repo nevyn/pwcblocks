@@ -20,6 +20,7 @@
 
 		<ol class="toc">
 			<li><a href="#whatareblocks">What are Blocks?</a></li>
+			<li><a href="#whyuseblocks">What are Blocks Good For?</a></li>
 			<li><a href="#gettingstarted">Getting Started</a>
 				<ol>
 					<li><a href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></li>
@@ -34,6 +35,7 @@
 			</li>
 			<li><a href="#objcblocks"><strong>Blocks in Objective-C</strong></li>
 			<li><a href="#cppblocks">Blocks in C++</a></li>
+			<li><a href="#goodies">Block Goodies</a></li>
 			<li><a href="#references">References and Additional Sources</a></li>
 			<li><a href="#versions">Version History</a></li>
 			<li><a href="#disqus_thread">0 Comments</a></li>
@@ -89,47 +91,55 @@ int main() {
 			</code></pre>
 		</div>
 		
-		<p>
-			<code>counter</code> is an ordinary C function that returns one of these fabled <em>blocks</em>. When you have
-			a reference to one, you can <em>call</em> it, just as if it was a function pointer. The difference is that the
-			block can use the variables in <code>counter</code> <em>even after the call to that function has returned!</em>
-			The variables <code>i</code> and <code>increment</code> have become a part of the state of the block
-			<code>mycounter</code>. I will go into more detail of how each part of this example works in 
-			<a href="#cblocks">chapter 3</a>.
-		</p>
-		
-		<p>
-			<b>What are blocks useful for?</b> In Ruby, they are used in place of many control structures. The standard
-			<code>for</code> loop is replaced by an ordinary function taking a block:
-		</p>
-		
-		<div class="codeblock">
-			<pre><code>
+	<p>
+		<code>counter</code> is an ordinary C function that returns one of these fabled <em>blocks</em>. When you have
+		a reference to one, you can <em>call</em> it, just as if it was a function pointer. The difference is that the
+		block can use the variables in <code>counter</code> <em>even after the call to that function has returned!</em>
+		The variables <code>i</code> and <code>increment</code> have become a part of the state of the block
+		<code>mycounter</code>. I will go into more detail of how each part of this example works in 
+		<a href="#cblocks">chapter 4</a>.
+	</p>
+	
+	
+
+
+
+
+
+<h2><span class="headno">2</span><a name="whyuseblocks" href="#whyuseblocks">What are Blocks Good For?</a></h2>
+
+	<p>
+		<strong>In Ruby</strong>, they are used in place of many control structures. The standard
+		<code>for</code> loop is replaced by an ordinary function taking a block:
+	</p>
+
+	<div class="codeblock">
+		<pre><code>
 [1, 2, 3, 4].each do |i|
 	puts i
 end
 # outputs the numbers 1, 2, 3, 4 on a line each
-		</code></pre></div>
+	</code></pre></div>
 
-		<p>
-			<code>each</code> is an ordinary function that takes a block: the block is the code between the 'do' and the
-			'end'. This is much more powerful than one might think, because with the ability to write your own control
-			structures, you no longer need to depend on the evolution of the language to make your code terse and readable.
-			Functional programming has many such useful control structures, such as the
-			<a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)"title="Map (higher-order function) - Wikipedia,
-			the free encyclopedia"><code>map</code></a> and <a href="http://en.wikipedia.org/wiki/Reduce_(higher-order_function)"
-			title="Fold (higher-order function) - Wikipedia, the free encyclopedia"><code>reduce</code></a> functions; the
-			first maps each value in a list to another value, while the second reduces a list of values to a single value
-			(e g the sum of integers in the list). This is an entire topic in itself, and I encourage to learn more about
-			functional programming on Wikipedia as I won't be covering that anymore here.
-		</p>
-		
-		<p>
-			<b>What are blocks useful for?</b> In Erlang, they are used as a concurrency primitive together with the 'light-weight
-			process', instead of the thread. This simple example looks through an array looking for a match, but each element is tested
-			in its own separate process; each element being tested at the same time.
-		</p>
-		
+	<p>
+		<code>each</code> is an ordinary function that takes a block: the block is the code between the 'do' and the
+		'end'. This is much more powerful than one might think, because with the ability to write your own control
+		structures, you no longer need to depend on the evolution of the language to make your code terse and readable.
+		Functional programming has many such useful control structures, such as the
+		<a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)"title="Map (higher-order function) - Wikipedia,
+		the free encyclopedia"><code>map</code></a> and <a href="http://en.wikipedia.org/wiki/Reduce_(higher-order_function)"
+		title="Fold (higher-order function) - Wikipedia, the free encyclopedia"><code>reduce</code></a> functions; the
+		first maps each value in a list to another value, while the second reduces a list of values to a single value
+		(e g the sum of integers in the list). This is an entire topic in itself, and I encourage to learn more about
+		functional programming on Wikipedia as I won't be covering that anymore here.
+	</p>
+
+	<p>
+		<strong>In Erlang</strong>, they are used as a concurrency primitive together with the 'light-weight
+		process', instead of the thread. This simple example looks through an array looking for a match, but each element is tested
+		in its own separate process; each element being tested at the same time.
+	</p>
+
 		<div class="codeblock">
 			<pre><code>some_function() ->
   lists:for_each([1, 2, 3, 4], fun(element) -&gt; % (1)
@@ -143,24 +153,27 @@ end
   end),
   io:format("This line appears after the above statement, "
             "but still executes before the code in it."). % (5)
-	
+
 % Outputs:
 % This line appears after the above statement, but still executes before the code in it.
 % Found a match: 3!
 % Found a match: 2!
-% OR with the lines swapped in any order, depending on scheduling
-		</code></pre></div>
-		
-		<p>
-			Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1),
-			we define an array with four numbers as elements, and calls the function <code>lists:for_each</code>
-			with that list as a first argument, and a block taking one argument as the second argument
-			(just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above).
-			The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first
-			block does is it <code>spawn</code>s a new Erlang process (line (2)), again taking a block as an argument
-			to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test
-			on line (3) is done concurrently for all elements in the array.
-		</p>
+% OR with the lines swapped in any order, depending on scheduling</code></pre></div>
+
+	<p>
+		Erlang looks weird to the uninitiated, so I'll step it through for you. On the line numbered (1),
+		we define an array with four numbers as elements, and calls the function <code>lists:for_each</code>
+		with that list as a first argument, and a block taking one argument as the second argument
+		(just as the function <code>Enumerable#each</code> takes a block argument in the Ruby example above).
+		The block begins at the <code>-&gt;</code> and goes on until the last <code>end</code>. All that first
+		block does is it <code>spawn</code>s a new Erlang process (line (2)), again taking a block as an argument
+		to do the actual test, but now THIS block (line (2) still) is executing concurrently, and thus the test
+		on line (3) is done concurrently for all elements in the array.
+	</p>
+	
+	<p>
+		<strong>In Cocoa</strong>, they can be used in both these ways, and more; for example, they are
+		good for callbacks and delayed execution. Examples of these uses can be found at <a href="#ref4">mikeash.com [4]</a>.
 
 
 
@@ -168,13 +181,7 @@ end
 
 
 
-
-
-
-
-
-
-	<h2><span class="headno">2</span><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
+	<h2><span class="headno">3</span><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
 		<h3><a name="snowleo" href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></h3>
 			<ol>
 				<li>
@@ -183,9 +190,9 @@ end
 					always automatically link with it.
 				</li>
 			</ol>
-			<p class="notetoself">
+			<!--<p class="notetoself">
 				TODO Okay that's true for Cocoa apps, but what about plain C apps? Non-Xcode projects?
-			</p>
+			</p>-->
 
 		<h3><a name="leoiphone" href="#leoiphone">On Mac OS X 10.5 Leopard or for iPhone</a></h3>
 			<p>
@@ -243,7 +250,7 @@ end
 
 
 
-<h2><span class="headno">3</span><a name="cblocks" href="#cblocks">Blocks in C</a></h2>
+<h2><span class="headno">4</span><a name="cblocks" href="#cblocks">Blocks in C</a></h2>
 	<h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
 		<p>
 			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to
@@ -572,7 +579,7 @@ int main() {
 
 
 
-<h2><span class="headno">4</span><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
+<h2><span class="headno">5</span><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
 	<p>
 		The really weird and wonderful thing about blocks is that <strong>blocks are actually Objective-C objects</strong>.
 		Even if you create them from a C++ library, the specification says that every block must
@@ -671,7 +678,7 @@ int main() {
 	</p>
 		<div class="codeblock">
 			<pre><code>typedef void(^BasicBlock)(void);
-				
+
 // Returns a block that aborts the process
 -(BasicBlock)doSomethingAsynchronous;
 {
@@ -779,21 +786,32 @@ int main (int argc, const char * argv[]) {
 
 
 
-<h2><span class="headno">5</span><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
+<h2><span class="headno">6</span><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
 <p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected. Read-only variables are const-copied into the block.</p>
 
 
 
 
 
+<h2><span class="headno">7</span><a name="goodies" href="#goodies">Block Goodies</a></h2>
+	<p>
+		Code snippets, libraries and frameworks using blocks to simplify working with Objective-C
+		are popping up here and there as Mac and iPhone developers are figuring Blocks out
+		and applying them to their common tasks. I'll add them here as I find them.
+		<a href="#comments">Post in the comments</a> if there's something I'm missing!
+	</p>
+	
+	<ul>
+		
+		
+	</ul>
 
 
 
 
 
 
-
-<h2><span class="headno">6</span><a name="references" href="#references">References and Additional Sources</a></h2>
+<h2><span class="headno">8</span><a name="references" href="#references">References and Additional Sources</a></h2>
 
 	<p>
 		If you want to read more about blocks, the following links are great places to keep
@@ -807,12 +825,12 @@ int main (int argc, const char * argv[]) {
 	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a></li>
 </ul>
 
-<h2><span class="headno">7</span><a href="#versions" name="versions">Version History</a></h2>
+<h2><span class="headno">9</span><a href="#versions" name="versions">Version History</a></h2>
 <ul>
 	<li>2009-08-16: First version, covering C and ObjC syntax and memory management</li>
 </ul>
 
-<h2><span class="headno">8</span><a href="#comments" name="comments">Comments</a></h2>
+<h2><span class="headno">10</span><a href="#comments" name="comments">Comments</a></h2>
 	<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/pwcblocks/embed.js"></script><noscript><a href="http://pwcblocks.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 
 </div>
