@@ -716,6 +716,7 @@ void someFunction() {
 		<code>__block</code> storage (Thanks to mikeash<a href="#ref3">[4]</a> for pointing this out). Example:
 	</p>
 	<div class="codeblock">
+			<a class="codedownload" href="__blockself.zip">__blockself.zip</a>
 		<pre><code>-(void)someMethod;
 {
 	__block TypeOfSelf *blockSelf = self;
@@ -859,7 +860,8 @@ int main (int argc, const char * argv[]) {
 	</p>
 	
 	<ul>
-		
+		<li>
+			Jonathan Wight was inspired by <a href="http://www.mikeash.com/?page=pyblog/key-value-observing-done-right.html" title="mikeash.com: Key-Value Observing Done Right">Mike Ash's KVO Done Right</a>, and wrote a <a href="http://toxicsoftware.com/kvoblocks/">KVO notification center based on blocks</a> (<a href="https://bitbucket.org/schwa/kvoblocknotificationcenter/">repository</a>, <a href="http://www.flickr.com/photos/jwight/3826876252/?likes_hd=1" title="KVO Blocks In Action on Flickr - Photo Sharing!">demo video</a>).
 		
 	</ul>
 
@@ -911,11 +913,12 @@ int main (int argc, const char * argv[]) {
 <script type="text/javascript">
   var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
   document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-  </script>
-  <script type="text/javascript">
+</script>
+<script type="text/javascript">
   var pageTracker = _gat._getTracker("UA-106658-7");
   pageTracker._initData();
   pageTracker._trackPageview();
 </script>
 
 </body>
+</html>
