@@ -69,3 +69,22 @@ pre {
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
+h2 {
+	padding-top: 1em;
+	height: 3em;
+}
+
+h2 a {
+	position: relative;
+	z-index:2;
+	top: 1.6em;
+	left: 0.8em;
+}
+
+.headno {
+	position: absolute;
+	font-size: 3em;
+	color: #dbe1ef;
+	z-index:1;
+}

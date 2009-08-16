@@ -11,15 +11,13 @@
 
 
 	<h1 style="margin-bottom:0">Programming with C Blocks</h1>
-	<b>&nbsp;&nbsp;On Apple Devices</b><br><br>
-	<em>By <a href="mailto:joachimb@gmail.com">Joachim Bengtsson</a></em><br>
-	<em>Edited 2009 08 02</em>
+	<b>&nbsp;&nbsp;On Apple Devices</b><br />
+	&nbsp;&nbsp;<em>by <a href="mailto:joachimb@gmail.com">Joachim Bengtsson</a></em>
 
 
 
 
 
-	<h2>ToC</h2>
 		<ol class="toc">
 			<li><a href="#whatareblocks">What are Blocks?</a></li>
 			<li><a href="#gettingstarted">Getting Started</a>
@@ -38,13 +36,18 @@
 			<li><a href="#cppblocks">Blocks in C++</a></li>
 			<li><a href="#references">References and Additional Sources</a></li>
 			<li><a href="#versions">Version History</a></li>
+			<li><a href="#comments#disqus_thread">Comments</a></li>
 		</ol>
 
 
 
 
 
-	<h2><a name="whatareblocks" href="#whatareblocks">What are Blocks?</a></h2>
+
+
+
+
+	<h2><span class="headno">1</span><a name="whatareblocks" href="#whatareblocks">What are Blocks?</a></h2>
 		<p>
 			Blocks are like functions, but written inline with the rest of your code, <em>inside</em> other functions. They are also
 			called <a href="http://en.wikipedia.org/wiki/Closure_(computer_science)" title="Closure (computer science) - Wikipedia,
@@ -163,7 +166,15 @@ end
 
 
 
-	<h2><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
+
+
+
+
+
+
+
+
+	<h2><span class="headno">2</span><a name="gettingstarted" href="#gettingstarted">Getting Started</a></h2>
 		<h3><a name="snowleo" href="#snowleo">On and for Mac OS X 10.6 Snow Leopard</a></h3>
 			<ol>
 				<li>
@@ -217,7 +228,22 @@ end
 		</p>
 
 
-<h2><a name="cblocks" href="#cblocks">Blocks in C</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2><span class="headno">3</span><a name="cblocks" href="#cblocks">Blocks in C</a></h2>
 	<h3><a name="cblocks-usage" href="#cblocks-usage">Syntax and Usage</a></h3>
 		<p>
 			<b>Variables pointing to blocks</b> take on the exact same syntax as variables pointing to
@@ -535,7 +561,18 @@ int main() {
 		the compiler will complain that you are trying to return a stack literal, which isn't possible.)
 	</p>
 
-<h2><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+<h2><span class="headno">4</span><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
 	<p>
 		The really weird and wonderful thing about blocks is that <strong>blocks are actually Objective-C objects</strong>.
 		Even if you create them from a C++ library, the specification says that every block must
@@ -734,12 +771,29 @@ int main (int argc, const char * argv[]) {
 
 
 
-<h2><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
+
+
+
+
+
+
+
+
+<h2><span class="headno">5</span><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
 <p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected. Read-only variables are const-copied into the block.</p>
 
 
 
-<h2><a name="references" href="#references">References and Additional Sources</a></h2>
+
+
+
+
+
+
+
+
+
+<h2><span class="headno">6</span><a name="references" href="#references">References and Additional Sources</a></h2>
 
 	<p>
 		If you want to read more about blocks, the following links are great places to keep
@@ -753,9 +807,40 @@ int main (int argc, const char * argv[]) {
 	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a></li>
 </ul>
 
-<h2><a href="#versions" name="versions">Version History</a></h2>
+<h2><span class="headno">7</span><a href="#versions" name="versions">Version History</a></h2>
 <ul>
 	<li>2009-08-16: First version, covering C and ObjC syntax and memory management</li>
 </ul>
 
-</div></body>
+<h2><span class="headno">8</span><a href="#comments" name="comments">Comments</a></h2>
+	<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/pwcblocks/embed.js"></script><noscript><a href="http://pwcblocks.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+		var links = document.getElementsByTagName('a');
+		var query = '?';
+		for(var i = 0; i < links.length; i++) {
+			if(links[i].href.indexOf('#disqus_thread') >= 0) {
+				query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+			}
+		}
+		document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/pwcblocks/get_num_replies.js' + query + '"></' + 'script>');
+	})();
+//]]>
+</script>
+
+
+<script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+  <script type="text/javascript">
+  var pageTracker = _gat._getTracker("UA-106658-7");
+  pageTracker._initData();
+  pageTracker._trackPageview();
+</script>
+
+</body>
