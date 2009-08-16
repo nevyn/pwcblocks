@@ -494,10 +494,22 @@ int main() {
 	return 0;
 }
 </code></pre></div>
+	
+	<p>
+		This is basically what the code above does:
+	</p>
+	<div class="codeblock"><pre><code>Block blockMaker() {
+	int a = 3; // (1)
+	struct _Block *block;
+	struct _Block blockStorage = ...; // (2)
+	block = &amp;blockStorage; // (2b)
+	return block; // (3)
+}</code></pre></div>
+	
 	<p>
 		At (1), the value <code>3</code> is allocated on the stack and named <code>a</code>, as expected.
 		At (2) and the following block, the value of <code>a</code> is copied into the block literal. Then,
-		also at (2), a pointer to the literal is in turn assigned to the variable <code>block</code>.
+		also at (2) (2b in the second example), a pointer to the literal is in turn assigned to the variable <code>block</code>.
 		If you think of Block as just a pointer type, and the assignment in (2) as taking the address of a literal,
 		you might see why (3) is invalid, but we'll get to that.
 	</p>
@@ -567,8 +579,53 @@ int main() {
 		(An aside: If you try to return a literal like so: <code>Block foo() { return ^ { printf("Fail") }; }</code>,
 		the compiler will complain that you are trying to return a stack literal, which isn't possible.)
 	</p>
+	
+	<p>
+		Be careful! You don't have to return from a function for something to fall
+		off the stack. The following example is equally invalid (<a href="#ref4">[2]</a> and <a href="#ref4">[4]</a>):
+	</p>
+	
+	<div class="codeblock"><pre><code>typedef void(^BasicBlock)(void);
+void someFunction() {
+	BasicBlock block;
+	if(condition)
+		block = ^ { ... };
+	else
+		block = ^ { ... };
+	...
+}
 
+// Basically equivalent of:
+void someFunction() {
+	BasicBlock block;
+	if(condition) {
+		struct _Block blockStorage = ...;
+		block = &amp;blockStorage;
+	} // blockStorage falls off the stack here
+	else 
+	{
+		struct _Block blockStorage = ...;
+		block = &amp;blockStorage;
+	} // blockStorage falls off the stack here
+	// and block thus points to non-existing/invalid memory
+	...
+}
 
+// Correct:
+void someFunction() {
+	BasicBlock block;
+	if(condition)
+		block = Block_copy(^ { ... });
+	else
+		block = Block_copy(^ { ... });
+	...
+}
+
+</code></pre></div>
+	
+	<p>
+		
+	
 
 
 
