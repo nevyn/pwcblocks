@@ -45,8 +45,25 @@
 
 
 
+		<h2><span class="headno">0</span><a name="introduction" href="#introduction">Introduction</a></h2>
 
+<p>
+	In Mac OS X 10.6, Apple introduced a syntax and runtime for using blocks (more commonly known as closures)
+	in C and Objective-C. These were both later back-ported to Mac OS X 10.5 and the iPhone by Plausible Labs.
+	However, there is very little documentation on blocks; even Apple's documentation that come with 10.6
+	is very vague on what memory management rules apply. I hope that you can avoid all the trial-and-error
+	that I went through with the help of this guide.
+</p>
 
+<p>
+	This is sort of a bottom-up tutorial, going from the absolute basics in C, and moving towards higher
+	abstractions in Objective-C. I doubt that reading just the Objective-C part will do you much good;
+	at least, read the chapter on <a href="#cblocks-memory">memory management in C</a> first.
+<p>
+	
+<p>
+	Have fun!<br />&nbsp; <a href="http://nevyn.nu/">Joachim Bengtsson</a>
+</p>
 
 
 	<h2><span class="headno">1</span><a name="whatareblocks" href="#whatareblocks">What are Blocks?</a></h2>
@@ -174,6 +191,10 @@ end
 	<p>
 		<strong>In Cocoa</strong>, they can be used in both these ways, and more; for example, they are
 		good for callbacks and delayed execution. Examples of these uses can be found at <a href="#ref4">mikeash.com [4]</a>.
+		Apple's main reason for introducing blocks in C is most likely because they are perfect
+		building blocks for concurrency. You can read more about Apple's Grand Central Dispatch in
+		<a href="#ref5">[5]</a>.
+	</p>
 
 
 
@@ -500,8 +521,8 @@ int main() {
 	</p>
 	<div class="codeblock"><pre><code>Block blockMaker() {
 	int a = 3; // (1)
-	struct _Block *block;
-	struct _Block blockStorage = ...; // (2)
+	struct Block_literal_1 *block;
+	struct Block_literal_1 blockStorage = ...; // (2)
 	block = &amp;blockStorage; // (2b)
 	return block; // (3)
 }</code></pre></div>
@@ -599,12 +620,12 @@ void someFunction() {
 void someFunction() {
 	BasicBlock block;
 	if(condition) {
-		struct _Block blockStorage = ...;
+		struct Block_literal_1 blockStorage = ...;
 		block = &amp;blockStorage;
 	} // blockStorage falls off the stack here
 	else 
 	{
-		struct _Block blockStorage = ...;
+		struct Block_literal_1 blockStorage = ...;
 		block = &amp;blockStorage;
 	} // blockStorage falls off the stack here
 	// and block thus points to non-existing/invalid memory
@@ -727,6 +748,14 @@ void someFunction() {
 	}
 	...
 }</code></pre></div>
+
+	<p>
+		Why does this work? Well, if the variable is __block, it can be changed from within a block.
+		If it's an object pointer, this means <em>changing the object pointer itself, not the object</em>.
+		If the block autoretains object pointers, what should happen if the pointer is changed,
+		pointing to another object? The concept is so hairy that they chose the simplest solution: 
+		__block storage objects simply aren't autoretained.
+	</p>
 	
 	<p>
 		Finally, one more memory management gotcha before we move onto syntax. Remember that blocks are objects?
@@ -780,8 +809,8 @@ void someFunction() {
 	</p>
 	
 	<p>
-		Finally, the somewhat hairy syntax for non-typedef'd blocks as Objective-C method arguments, and
-		how to declare them as properties:
+		In the syntax department, you might have two questions. How do I use non-typedef'd blocks as method arguments,
+		and can I use them as properties? This example should make that clear:
 	</p>
 	
 	<div class="codeblock">
@@ -861,8 +890,49 @@ int main (int argc, const char * argv[]) {
 	
 	<ul>
 		<li>
-			Jonathan Wight was inspired by <a href="http://www.mikeash.com/?page=pyblog/key-value-observing-done-right.html" title="mikeash.com: Key-Value Observing Done Right">Mike Ash's KVO Done Right</a>, and wrote a <a href="http://toxicsoftware.com/kvoblocks/">KVO notification center based on blocks</a> (<a href="https://bitbucket.org/schwa/kvoblocknotificationcenter/">repository</a>, <a href="http://www.flickr.com/photos/jwight/3826876252/?likes_hd=1" title="KVO Blocks In Action on Flickr - Photo Sharing!">demo video</a>).
-		
+			<a href="http://toxicsoftware.com/" title="toxicsoftware.com">Jonathan Wight</a> was inspired by
+			<a href="http://www.mikeash.com/?page=pyblog/key-value-observing-done-right.html"
+				title="mikeash.com: Key-Value Observing Done Right">Mike Ash's KVO Done Right</a>, and wrote a
+			<a href="http://toxicsoftware.com/kvoblocks/">KVO notification center based on blocks</a>
+			(<a href="https://bitbucket.org/schwa/kvoblocknotificationcenter/">repository</a>,
+			<a href="http://www.flickr.com/photos/jwight/3826876252/?likes_hd=1"
+				title="KVO Blocks In Action on Flickr - Photo Sharing!">demo video</a>).
+			
+			A subscription now looks like this:
+			<div class="codeblock">
+				<pre><code>void *theBlock = ^(NSString *keyPath, CALayer *self, NSDictionary *change, id identifier) {
+	self.position = CGPointMake(self.viewPoint.scale * self.modelObject.position.x,
+	                            self.viewPoint.scale * self.modelObject.position.y);
+};
+CALayer *theLayer = ...;
+[theLayer addKVOBlock:theBlock forKeyPath:@"modelObject.position" options:0 identifier:@"KVO_IDENTIFIER_1"];
+</code></pre></div>
+		</li>
+		<li>
+			<a href="http://andymatuschak.org/" title="andymatuschak.org">Andy Matuschak</a> also got fed up with the
+			verbosity of KVO and devised
+			<a href="http://blog.andymatuschak.org/post/156229939/kvo-blocks-block-callbacks-for-cocoa-observers"
+				title="Square Signals : KVO+Blocks: Block Callbacks for Cocoa Observers">his own similar solution</a>.
+			Demo:
+			<div class="codeblock">
+				<pre><code>- (void)registerObservation
+{
+    [observee addObserverForKeyPath:@"someValue"
+                               task:^(id obj, NSDictionary *change) {
+        NSLog(@"someValue changed: %@", change);
+    }];
+}</code></pre></div>
+		</li>
+		<li>
+			<a href="http://mogeneration.com/">MoGeneration</a> are working to make
+			<a href="http://github.com/mogeneration/functionalkit/tree/blocks">FunctionalKit</a> use blocks.
+			FunctionalKit gives you the standard map, reduce and such, but also works to make
+			your code more succinct and functional. There's a blog entry on
+			<a href="http://adams.id.au/blog/2009/04/simplifying-json-parsing-using-functionalkit/"
+			title="Simplifying JSON Parsing Using FunctionalKit at nosewheelie">
+			simplifying JSON parsing with FunctionalKit</a> over at adams.id.au, which will give
+			you the basic idea, even though it was written before blocks.
+		</li>
 	</ul>
 
 
@@ -880,12 +950,14 @@ int main (int argc, const char * argv[]) {
 <ul>
 	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a></li>
 	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a> (requires ADC login and seed or WWDC attendance)</li>
-	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Block Implementation spec</a></li>
+	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Clang Docs - Block Implementation Specification</a></li>
 	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a></li>
+	<li><a name="ref5">[5]</a>: <a href="http://images.apple.com/macosx/technology/docs/GrandCentral_TB_brief_20090608.pdf">Grand Central Dispatch — A better way to do multicore.</a></li>
 </ul>
 
 <h2><span class="headno">9</span><a href="#versions" name="versions">Version History</a></h2>
 <ul>
+	<li>2009-08-23: Added introduction, added some ObjC goodies, explained the __block non-autoretain hack and added references to mikeash's blog</li>
 	<li>2009-08-16: First version, covering C and ObjC syntax and memory management</li>
 </ul>
 
