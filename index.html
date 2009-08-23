@@ -37,7 +37,7 @@
 			<li><a href="#cppblocks">Blocks in C++</a></li>
 			<li><a href="#goodies">Block Goodies</a></li>
 			<li><a href="#references">References and Additional Sources</a></li>
-			<li><a href="#versions">Version History</a></li>
+			<li><a href="#versions">Version History and Downloads</a></li>
 			<li><a href="#disqus_thread">0 Comments</a></li>
 		</ol>
 
@@ -560,7 +560,7 @@ int main() {
 		rest of the state of the function call when <code>intMaker</code> returns (2).
 	</p>
 	
-	<p>
+	<p><a name="Block_copy"></a>
 		How do work around this problem? Simple — we move the block to the <em>heap</em>. The function
 		<code>Block_copy()</code> takes a block pointer, and if it's a stack block, copies it to the
 		heap, or if it's already a heap block, increases its retain count (like an immutable object
@@ -568,7 +568,7 @@ int main() {
 		take away is that you should never return a block literal from a function, but rather
 		a copy of it.
 	</p>
-	<p>
+	<p><a name="Block_release"></a>
 		When we're done with the block, just release it with <code>Block_release()</code>. Thus,
 		the correct way to implement the blockMaker example is like so:
 	</p>
@@ -666,7 +666,7 @@ void someFunction() {
 		<em>work</em> wherever you'd expect. These methods are:
 		<ul>
 			<li>
-				<code>-[Block copy]</code>: Exactly the same as <code>Block_copy()</code>. This will give you a block
+				<code>-[Block copy]</code>: Exactly the same as <a href="#Block_copy"><code>Block_copy()</code></a>. This will give you a block
 				on the heap with an owning reference, just like calling <code>-[NSObject copy]</code> on any other
 				object.
 			</li>
@@ -677,7 +677,7 @@ void someFunction() {
 				that retain cannot call copy; I'll get to why this is really, really annoying.
 			</li>
 			<li>
-				<code>-[Block release]</code>: <a href="#cblocks-memory"><code>Block_release()</code></a>.
+				<code>-[Block release]</code>: <a href="#Block_release"><code>Block_release()</code></a>.
 			</li>
 			<li>
 				<code>-[Block autorelease]</code>: That's right, <b>blocks can be autoreleased</b>!
@@ -802,11 +802,31 @@ void someFunction() {
 		until the referring blocks disappear.
 	</p>
 	
-	<p>
+	<p><a name="blocks_in_collections"></a>
 		This example also highlights a problem with stack block literals — collections, such as NSDictionary above,
 		<code>retain</code>s its values, but <code>-[Block retain]</code> doesn't do anything on stack blocks!
-		Thus, we must move the blocks to the heap before we can insert them into the dictionary.
+		Thus, we must move the blocks to the heap before we can insert them into the dictionary. For example, to
+		insert a few delayed actions into an array, you'd do it like this:
 	</p>
+	
+	<div class="codeblock">
+		<a class="codedownload" href="arrayofblocks.zip">arrayofblocks.zip</a>
+		<pre><code>NSArray *someActions = [NSArray arrayWithObjects:
+	[[^ { NSLog(@"Hello");   } copy] autorelease],
+	[[^ { NSLog(@"World!");  } copy] autorelease],
+	[[^ { NSLog(@"Awesome.");} copy] autorelease],
+	nil
+];
+
+for (void(^block)() in someActions) {
+	block();
+}
+/* Outputs:
+2009-08-23 13:06:06.514 arrayofblocks[32449:a0f] Hello
+2009-08-23 13:06:06.517 arrayofblocks[32449:a0f] World!
+2009-08-23 13:06:06.517 arrayofblocks[32449:a0f] Awesome.
+*/</code>
+	</pre></div>
 	
 	<p>
 		In the syntax department, you might have two questions. How do I use non-typedef'd blocks as method arguments,
@@ -956,10 +976,18 @@ CALayer *theLayer = ...;
 </ul>
 
 <h2><span class="headno">9</span><a href="#versions" name="versions">Version History</a></h2>
-<ul>
-	<li>2009-08-23: Added introduction, added some ObjC goodies, explained the __block non-autoretain hack and added references to mikeash's blog</li>
-	<li>2009-08-16: First version, covering C and ObjC syntax and memory management</li>
-</ul>
+	<ul>
+		<li>2009-08-23: Added introduction, added some ObjC goodies, explained the __block non-autoretain hack and added references to mikeash's blog, and added an example of how to add blocks to collections.</li>
+		<li>2009-08-16: First version, covering C and ObjC syntax and memory management.</li>
+	</ul>
+
+	<p>
+		This site is versioned, so to <a href="http://github.com/nevyn/pwcblocks/commits/master"
+		title="Commit History for nevyn's pwcblocks - GitHub">see exactly what has changed</a>,
+		or to <a href="http://github.com/nevyn/pwcblocks/zipball/master" title="pwcblocks.zip">
+		download the entire site</a> with samples and all, check out <a href="http://github.com/nevyn/pwcblocks"
+		title="nevyn's pwcblocks at master - GitHub">the repository</a>.
+	</p>
 
 <h2><span class="headno">10</span><a href="#comments" name="comments">Comments</a></h2>
 	<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/pwcblocks/embed.js"></script><noscript><a href="http://pwcblocks.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
