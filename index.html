@@ -296,8 +296,8 @@ end
 		<p>
 			As with function pointers, you'll likely want to typedef those types, as it can get relatively
 			hairy otherwise. For example, a pointer to a block returning a block taking a block would be something
-			like <code>void(^)(void) (^myblockptr)(void(^)())</code>, which is nigh impossible to read (and doesn't
-			even compile, I'm not sure how that'd be done). A simple typedef later, and it's much simpler:
+			like <code>void (^(^myblockptr)(void (^)()))();</code>, which is nigh impossible to read. A simple typedef
+			later, and it's much simpler:
 		</p>
 		
 		<div class="codeblock"><pre><code>typedef void (^Block)();
@@ -603,7 +603,7 @@ int main() {
 	</p>
 	
 	<p>
-		(An aside: If you try to return a literal like so: <code>Block foo() { return ^ { printf("Fail") }; }</code>,
+		(An aside: If you try to return a literal like so: <code>Block foo() { int i = 3; return ^ { printf("Fail %d", i); }; }</code>,
 		the compiler will complain that you are trying to return a stack literal, which isn't possible.)
 	</p>
 	
@@ -615,10 +615,11 @@ int main() {
 	<div class="codeblock"><pre><code>typedef void(^BasicBlock)(void);
 void someFunction() {
 	BasicBlock block;
-	if(condition)
+	if(condition) {
 		block = ^ { ... };
-	else
+	} else {
 		block = ^ { ... };
+	}
 	...
 }
 
@@ -641,18 +642,15 @@ void someFunction() {
 // Correct:
 void someFunction() {
 	BasicBlock block;
-	if(condition)
+	if(condition) {
 		block = Block_copy(^ { ... });
-	else
+	} else {
 		block = Block_copy(^ { ... });
+	}
 	...
 }
 
 </code></pre></div>
-	
-	<p>
-		
-	
 
 
 
@@ -660,10 +658,7 @@ void someFunction() {
 
 
 
-
-
-
-<h2><span class="headno">5</span><a name="objcblocks" href="#cblocks">Blocks in Objective-C</a></h2>
+<h2><span class="headno">5</span><a name="objcblocks" href="#objcblocks">Blocks in Objective-C</a></h2>
 	<p>
 		The really weird and wonderful thing about blocks is that <strong>blocks are actually Objective-C objects</strong>.
 		Even if you create them from a C++ library, the specification says that every block must
@@ -780,12 +775,12 @@ void someFunction() {
 	} copy] autorelease];
 	
 	__block AsyncDownloader *downloader = [AsyncDownloader fetch:@"http://domain/some.file" options:$dict(
-		@"success": [[^ {
+		@"success", [[^ {
 			[downloader.dataValue writeToFile:@"some/path" atomically:NO];
 			DisplayAlert(@"Download complete");
 			cleanup();
 		} copy] autorelease],
-		@"failure": [[^ {
+		@"failure", [[^ {
 			DisplayAlert(@"Error: %@", downloader.error);
 			cleanup();
 		} copy] autorelease]
@@ -974,15 +969,18 @@ CALayer *theLayer = ...;
 	</p>
 
 <ul>
-	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a></li>
-	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a> (requires ADC login and seed or WWDC attendance)</li>
-	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Clang Docs - Block Implementation Specification</a></li>
-	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a></li>
-	<li><a name="ref5">[5]</a>: <a href="http://images.apple.com/macosx/technology/docs/GrandCentral_TB_brief_20090608.pdf">Grand Central Dispatch — A better way to do multicore.</a></li>
+	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a>, the go-to document for all your nitty-gritty Blocks details.</li>
+	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a>, Apple's own guide.</li>
+	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Clang Docs - Block Implementation Specification</a> is like reading the source, but skipping all but the comments. Very enlightening.</li>
+	<li><a name="ref4">[4]</a>: <a href="http://www.mikeash.com/?page=pyblog/friday-qa-2009-08-14-practical-blocks.html" title="mikeash.com: Friday Q&amp;A 2009-08-14: Practical Blocks">mikeash - Friday Q&amp;A 2009-08-14: Practical Blocks</a> is a good place to get started with Blocks, but more importantly, it's a great place to figure out <em>what to do with them</em>. Great Blocks introduction.</li>
+	<li><a name="ref5">[5]</a>: <a href="https://developer.apple.com/mac/articles/cocoa/introblocksgcd.html">Introducing Blocks and Grand Central Dispatch</a> is a brief overview of what GCD is and how it works together with blocks.</li>
+	<li><a name="ref6">[6]</a>: <a href="http://www.friday.com/bbum/2009/08/29/basic-blocks/">bbum's weblog-o-mat: Basic Blocks</a> is Bill Bumgarner's introduction to blocks, in the same vein as <a href="#ref4">mikeash's blog entry</a>. He has a <a href="http://www.friday.com/bbum/2009/08/29/blocks-tips-tricks/" title="bbum&#8217;s weblog-o-mat  &raquo; Blog Archive  
+	  &raquo; ^ Blocks Tips &amp; Tricks">follow-up with some tips and tricks</a>.</li>
 </ul>
 
 <h2><span class="headno">9</span><a href="#versions" name="versions">Version History</a></h2>
 	<ul>
+		<li>2010-03-17: Fixed some syntax errors and updated the link for <a href="#ref5">[5]</a>. Thanks to void, Ernest Prabhakar and Martin from the comments!</li>
 		<li>2009-08-23: Added introduction, added some ObjC goodies, explained the __block non-autoretain hack and added references to mikeash's blog, and added an example of how to add blocks to collections.</li>
 		<li>2009-08-16: First version, covering C and ObjC syntax and memory management.</li>
 	</ul>
