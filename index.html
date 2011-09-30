@@ -40,6 +40,7 @@
 				</ol>
 			</li>
 			<li><a href="#objcblocks"><strong>Blocks in Objective-C</strong></li>
+			<li><a href="#arcblocks"><strong>Blocks and ARC (Automatic Reference Counting)</strong></li>
 			<li><a href="#cppblocks">Blocks in C++</a></li>
 			<li><a href="#goodies">Block Goodies</a></li>
 			<li><a href="#references">References and Additional Sources</a></li>
@@ -497,7 +498,7 @@ Hello!
 		title="Stack-based memory allocation - Wikipedia, the free encyclopedia">stack</a>
 		and <a href="http://en.wikipedia.org/wiki/Dynamic_memory_allocation"
 		title="Dynamic memory allocation - Wikipedia, the free encyclopedia">heap</a> memory,
-		and how they differ.
+		and how they differ. 
 	</p>
 	
 	<p>
@@ -891,17 +892,30 @@ int main (int argc, const char * argv[]) {
 
 
 
+<h2><span class="headno">6</span><a name="arcblocks" href="#arcblocks">Blocks and ARC (Automatic Reference Counting)</a></h2>
+
+<p><a href="#ref0">Mike Ash has an excellent run-down of block usage with ARC[0]</a>. In summary:
+<ul>
+  <li>
+    ARC can manage blocks since they are ObjC objects, but it also knows that blocks must be copied, not just retained. This
+    will only work however, as long as you use block types in your signatures, and not just 'id'.
+  </li>
+  <li>
+    __block changes meaning: it no longer means "this variable is not auto-retained by blocks", since the ObjC compiler now has the 
+    power to do reference counting on its own. So, all the code you've written that uses <code>__block __typeof(self) selff = self</code>
+    should be changed to <code>__weak __typeof(self) selff = self</code> or you'll *still* be creating retain loops.
+  </li>
+</ul>
 
 
-
-<h2><span class="headno">6</span><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
+<h2><span class="headno">7</span><a name="cppblocks" href="#cppblocks">Blocks in C++</a></h2>
 <p>See <a href="#ref1">[1]</a> and <a href="#ref1">[2]</a> for details on how blocks work with C++ variables. In essence: Copy constructors and destructors are being called as expected. Read-only variables are const-copied into the block.</p>
 
 
 
 
 
-<h2><span class="headno">7</span><a name="goodies" href="#goodies">Block Goodies</a></h2>
+<h2><span class="headno">8</span><a name="goodies" href="#goodies">Block Goodies</a></h2>
 	<p>
 		Code snippets, libraries and frameworks using blocks to simplify working with Objective-C
 		are popping up here and there as Mac and iPhone developers are figuring Blocks out
@@ -964,6 +978,12 @@ CALayer *theLayer = ...;
 		  available on Github.</a>
 		</li>
 		
+		<li>
+		  <a href="http://www.mikeash.com/">Mike Ash</a> has an amazing repository of blocks related
+		  articles and code, but the most impressive one is his code to use blocks in place of simple callback
+		  function pointers. Do check out <a href="http://www.mikeash.com/pyblog/friday-qa-2011-05-06-a-tour-of-mablockclosure.html">
+		  MABlockClosure</a>.
+		
 	</ul>
 
 
@@ -971,7 +991,7 @@ CALayer *theLayer = ...;
 
 
 
-<h2><span class="headno">8</span><a name="references" href="#references">References and Additional Sources</a></h2>
+<h2><span class="headno">9</span><a name="references" href="#references">References and Additional Sources</a></h2>
 
 	<p>
 		If you want to read more about blocks, the following links are great places to keep
@@ -979,6 +999,7 @@ CALayer *theLayer = ...;
 	</p>
 
 <ul>
+  <li> <a name="ref0">[0]</a>: <a href="http://www.mikeash.com/pyblog/friday-qa-2011-09-30-automatic-reference-counting.html">mikeash.com: Automatic Reference Counting</a></li>
 	<li> <a name="ref1">[1]</a>: <a href="http://clang.llvm.org/docs/BlockLanguageSpec.txt" title="Clang Docs - Block Language Specification">Clang Docs - Block Language Specification</a>, the go-to document for all your nitty-gritty Blocks details.</li>
 	<li><a name="ref2">[2]</a>: <a href="http://developer.apple.com/snowleopard/library/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html">Blocks Programming Topics</a>, Apple's own guide.</li>
 	<li> <a name="ref3">[3]</a>: <a href="http://clang.llvm.org/docs/BlockImplementation.txt" title="Block Implementation spec">Clang Docs - Block Implementation Specification</a> is like reading the source, but skipping all but the comments. Very enlightening.</li>
@@ -988,7 +1009,7 @@ CALayer *theLayer = ...;
 	  &raquo; ^ Blocks Tips &amp; Tricks">follow-up with some tips and tricks</a>.</li>
 </ul>
 
-<h2><span class="headno">9</span><a href="#versions" name="versions">Version History</a></h2>
+<h2><span class="headno">10</span><a href="#versions" name="versions">Version History</a></h2>
 	<ul>
 		<li>2010-07-07: iOS4 has block support. You don't need to use PLBlocks if you are targeting iOS >= 4.
 		<li>2010-03-17: Fixed some syntax errors and updated the link for <a href="#ref5">[5]</a>. Thanks to void, Ernest Prabhakar and Martin from the comments!</li>
@@ -1004,7 +1025,7 @@ CALayer *theLayer = ...;
 		title="nevyn's pwcblocks at master - GitHub">the repository</a>.
 	</p>
 
-<h2><span class="headno">10</span><a href="#comments" name="comments">Comments</a></h2>
+<h2><span class="headno">11</span><a href="#comments" name="comments">Comments</a></h2>
 	<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/pwcblocks/embed.js"></script><noscript><a href="http://pwcblocks.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 
 </div>
